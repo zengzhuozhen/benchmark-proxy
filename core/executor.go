@@ -1,7 +1,7 @@
 package core
 
 import (
-	"bench-proxy/protocol"
+	"github.com/zengzhuozhen/benchmark-proxy/protocol"
 	"bytes"
 	"context"
 	"fmt"

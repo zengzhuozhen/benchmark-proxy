@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bench-proxy/core"
+	"github.com/zengzhuozhen/benchmark-proxy/core"
 	"flag"
 	"fmt"
 )

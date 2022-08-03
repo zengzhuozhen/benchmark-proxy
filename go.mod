@@ -1,4 +1,4 @@
-module bench-proxy
+module github.com/zengzhuozhen/benchmark-proxy
 
 go 1.18
 
