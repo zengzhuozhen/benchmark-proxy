@@ -18,7 +18,3 @@ func (t *BenchmarkRespWriter) Header() http.Header {
 func (t *BenchmarkRespWriter) WriteHeader(statusCode int) {
 	t.Write([]byte(fmt.Sprintf("HTTP/1.1 %d \n\n", statusCode)))
 }
-
-func (s *BenchmarkProxyService) Serve() {
-	_ = http.ListenAndServe(fmt.Sprintf(":%d", s.port), s)
-}

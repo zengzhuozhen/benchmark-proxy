@@ -7,9 +7,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"fmt"
 	"hash/fnv"
-	"io/ioutil"
 	"math/big"
 	"net"
 	"strings"
@@ -21,22 +19,6 @@ var (
 	defaultRootKey *rsa.PrivateKey
 )
 
-func init() {
-	var err error
-	crtByte, _ := ioutil.ReadFile("ca.crt")
-	keyByte, _ := ioutil.ReadFile("ca.key")
-	block, _ := pem.Decode(crtByte)
-	defaultRootCA, err = x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		panic(fmt.Errorf("加载根证书失败: %s", err))
-	}
-	block, _ = pem.Decode(keyByte)
-	defaultRootKey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		panic(fmt.Errorf("加载根证书私钥失败: %s", err))
-	}
-}
-
 type Pair struct {
 	Cert            *x509.Certificate
 	CertBytes       []byte
@@ -44,11 +26,15 @@ type Pair struct {
 	PrivateKeyBytes []byte
 }
 
-func GenerateTlsConfig(host string) (*tls.Config, error) {
+func GenerateTlsConfig(host string, rootCA *x509.Certificate, rootKey *rsa.PrivateKey) (*tls.Config, error) {
 	if h, _, err := net.SplitHostPort(host); err == nil {
 		host = h
 	}
-	pair, err := GeneratePem(host, 1, defaultRootCA, defaultRootKey)
+	if rootCA == nil || rootKey == nil {
+		rootCA = defaultRootCA
+		rootKey = defaultRootKey
+	}
+	pair, err := GeneratePem(host, 1, rootCA, rootKey)
 	if err != nil {
 		return nil, err
 	}

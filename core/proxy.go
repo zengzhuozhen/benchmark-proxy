@@ -2,7 +2,9 @@ package core
 
 import (
 	"bufio"
+	"crypto/rsa"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"net"
@@ -12,11 +14,17 @@ import (
 )
 
 type BenchmarkProxyService struct {
-	port int
+	port    int
+	rootCA  *x509.Certificate
+	rootKey *rsa.PrivateKey
 }
 
-func NewBenchProxyService(port int) *BenchmarkProxyService {
-	return &BenchmarkProxyService{port: port}
+func NewBenchProxyService(port int, rootCA *x509.Certificate, rootKey *rsa.PrivateKey) *BenchmarkProxyService {
+	return &BenchmarkProxyService{port: port, rootCA: rootCA, rootKey: rootKey}
+}
+
+func (s *BenchmarkProxyService) Serve() {
+	_ = http.ListenAndServe(fmt.Sprintf(":%d", s.port), s)
 }
 
 func (s *BenchmarkProxyService) ServeHTTP(originRespWriter http.ResponseWriter, originReq *http.Request) {
@@ -46,7 +54,7 @@ func (s *BenchmarkProxyService) WrapInTls(originReq *http.Request, originRespWri
 	defer clientConn.Close()
 	clientConn.Write([]byte("HTTP/1.1 200 Connection established\n\n"))
 
-	tlsConfig, err := GenerateTlsConfig(originReq.URL.Host)
+	tlsConfig, err := GenerateTlsConfig(originReq.URL.Host, s.rootCA, s.rootKey)
 	if err != nil {
 		http.Error(originRespWriter, fmt.Sprintf("HTTPS生成证书失败: %s", err), http.StatusServiceUnavailable)
 		return
