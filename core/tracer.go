@@ -68,6 +68,6 @@ func (t *HttpTracer) Result(req *http.Request, resp *http.Response) HttpTracerRe
 	result.RequestDataLen = req.ContentLength
 	result.ResponseDataLen = resp.ContentLength
 	_, _ = resp.Body.Read([]byte(result.ResponseMessage))
-	result.Duration = time.Duration(t.GetConnTime - t.GotFirstResponseByteTime)
+	result.Duration = time.Duration(t.GotFirstResponseByteTime - t.GetConnTime)
 	return *result
 }

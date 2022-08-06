@@ -6,7 +6,7 @@ import (
 )
 
 type Statistic struct {
-	TotalDuration int32
+	TotalDuration int64
 	SuccessCount  int32
 	FailCount     int32
 	Total         int32
@@ -20,7 +20,7 @@ func (s *Statistic) Aggregate(tracerResultChan <-chan HttpTracerResult) {
 			if !ok {
 				return
 			}
-			atomic.AddInt32(&s.TotalDuration, int32(tracerResult.Duration))
+			atomic.AddInt64(&s.TotalDuration, int64(tracerResult.Duration))
 			if tracerResult.IsSuccess {
 				atomic.AddInt32(&s.SuccessCount, 1)
 			} else {
@@ -32,7 +32,7 @@ func (s *Statistic) Aggregate(tracerResultChan <-chan HttpTracerResult) {
 }
 
 func (s *Statistic) Print() []byte {
-	s.appendLine(fmt.Sprintf("Duration....................avg=%.2f(ms) total=%.2f(ms)", float64(s.TotalDuration)/float64(s.Total)/1e6, float64(s.TotalDuration)/1e6))
+	s.appendLine(fmt.Sprintf("Duration....................avg=%.2f(ms) total=%.2f(ms)", float64(s.TotalDuration/1e6)/float64(s.Total), float64(s.TotalDuration)/1e6))
 	s.appendLine(fmt.Sprintf("SuccessCount................%d", s.SuccessCount))
 	s.appendLine(fmt.Sprintf("FailCount...................%d", s.FailCount))
 	s.appendLine(fmt.Sprintf("Total.......................%d", s.Total))

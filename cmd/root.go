@@ -9,6 +9,8 @@ import (
 	"github.com/zengzhuozhen/benchmark-proxy/core"
 	"io/ioutil"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 var (
@@ -26,8 +28,19 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ca, key := parseCA(rootCA, rootKey)
 		proxy := core.NewBenchProxyService(port, ca, key)
-		proxy.Serve()
+		go proxy.Serve()
+		fmt.Printf("proxy started success in :%d \n", port)
+		gracefulStop()
 	},
+}
+
+func gracefulStop() {
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-sigChan
+	fmt.Printf("receive signal %s \n", sig)
+	fmt.Println("Graceful Exit")
+	os.Exit(0)
 }
 
 func parseCA(crt, key string) (rootCA *x509.Certificate, rootKey *rsa.PrivateKey) {
@@ -49,8 +62,8 @@ func parseCA(crt, key string) (rootCA *x509.Certificate, rootKey *rsa.PrivateKey
 
 func init() {
 	rootCmd.PersistentFlags().IntVar(&port, "port", 9900, "proxy server bind port")
-	rootCmd.PersistentFlags().StringVar(&rootCA, "ca-crt", "ca.crt", "ca.crt file for HTTPS proxy,default: 'ca.crt' is root dir")
-	rootCmd.PersistentFlags().StringVar(&rootKey, "ca-key", "ca.key", "ca.crt file for HTTPS proxy,default: 'ca.key' is root dir")
+	rootCmd.PersistentFlags().StringVar(&rootCA, "ca-crt", "ca.crt", "ca.crt file for HTTPS proxy,default: 'ca.crt' in root dir")
+	rootCmd.PersistentFlags().StringVar(&rootKey, "ca-key", "ca.key", "ca.crt file for HTTPS proxy,default: 'ca.key' in root dir")
 }
 
 func Execute() {

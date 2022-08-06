@@ -1,10 +1,10 @@
 package core
 
 import (
-	"github.com/zengzhuozhen/benchmark-proxy/protocol"
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/zengzhuozhen/benchmark-proxy/protocol"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -122,8 +122,10 @@ func (exec *BenchmarkExecTimes) Run() {
 			newReq := exec.originReq.Clone(exec.originReq.Context())
 			newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 			newReq.Header = exec.ClearHopHeaders(newReq.Header)
-			result := exec.RunOnce(newReq)
-			exec.resultChan <- result
+			result, err := exec.RunOnce(newReq)
+			if err == nil {
+				exec.resultChan <- result
+			}
 			<-concurrencyBuffer
 		}()
 	}
@@ -151,8 +153,10 @@ func (exec *BenchmarkExecDuration) Run() {
 				newReq := exec.originReq.Clone(childCtx)
 				newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 				newReq.Header = exec.ClearHopHeaders(newReq.Header)
-				result := exec.RunOnce(newReq)
-				exec.resultChan <- result
+				result, err := exec.RunOnce(newReq)
+				if err == nil {
+					exec.resultChan <- result
+				}
 				<-concurrencyBuffer
 			}()
 		}
@@ -168,13 +172,17 @@ type Executor struct {
 	resultChan chan HttpTracerResult
 }
 
-func (exec *Executor) RunOnce(req *http.Request) HttpTracerResult {
+func (exec *Executor) RunOnce(req *http.Request) (HttpTracerResult, error) {
 	tracer := &HttpTracer{}
 	req, _ = http.NewRequest(req.Method, req.URL.String(), req.Body)
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), tracer.Trace()))
-	resp, _ := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Printf("执行请求失败,错误原因:%s", err.Error())
+		return HttpTracerResult{}, err
+	}
 	defer resp.Body.Close()
-	return tracer.Result(req, resp)
+	return tracer.Result(req, resp), nil
 }
 
 func (exec *Executor) Result() *Statistic {
