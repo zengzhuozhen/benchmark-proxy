@@ -1,0 +1,8 @@
+GET http://localhost:9900
+Content-Type: application/json
+Host: www.baidu.com
+Benchmark-Proxy-Type: times
+Benchmark-Proxy-Times: 1
+Benchmark-Proxy-Concurrency:1
+
+###

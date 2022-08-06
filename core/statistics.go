@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"sync/atomic"
+	"time"
 )
 
 type Statistic struct {
@@ -32,6 +33,8 @@ func (s *Statistic) Aggregate(tracerResultChan <-chan HttpTracerResult) {
 }
 
 func (s *Statistic) Print() []byte {
+	// wait for aggregate result
+	time.Sleep(time.Second)
 	s.appendLine(fmt.Sprintf("Duration....................avg=%.2f(ms) total=%.2f(ms)", float64(s.TotalDuration/1e6)/float64(s.Total), float64(s.TotalDuration)/1e6))
 	s.appendLine(fmt.Sprintf("SuccessCount................%d", s.SuccessCount))
 	s.appendLine(fmt.Sprintf("FailCount...................%d", s.FailCount))

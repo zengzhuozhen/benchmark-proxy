@@ -24,7 +24,9 @@ func NewBenchProxyService(port int, rootCA *x509.Certificate, rootKey *rsa.Priva
 }
 
 func (s *BenchmarkProxyService) Serve() {
-	_ = http.ListenAndServe(fmt.Sprintf(":%d", s.port), s)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s); err != nil {
+		panic(err)
+	}
 }
 
 func (s *BenchmarkProxyService) ServeHTTP(originRespWriter http.ResponseWriter, originReq *http.Request) {
@@ -38,6 +40,8 @@ func (s *BenchmarkProxyService) ServeHTTP(originRespWriter http.ResponseWriter, 
 
 func (s *BenchmarkProxyService) WrapInTls(originReq *http.Request, originRespWriter http.ResponseWriter, fn func(originReq *http.Request, originRespWriter http.ResponseWriter)) {
 	if originReq.Method != http.MethodConnect {
+		originReq.URL.Scheme = "http"
+		originReq.URL.Host = originReq.Host
 		fn(originReq, originRespWriter)
 		return
 	}

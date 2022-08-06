@@ -24,7 +24,7 @@ var rootCmd = &cobra.Command{
 	Short: "benchmark-proxy is a proxy server for HTTP/HTTPS benchmark",
 	Long: `benchmark-proxy is a proxy server for HTTP/HTTPS benchmark
                 use it by curl -x option like:
-                curl -x 127.0.0.1:9900 http://www.baidu.com`,
+                curl -x 127.0.0.1:9900 https://www.baidu.com`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ca, key := parseCA(rootCA, rootKey)
 		proxy := core.NewBenchProxyService(port, ca, key)
