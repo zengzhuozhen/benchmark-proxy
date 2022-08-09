@@ -2,3 +2,6 @@
 
 # CA
 ca.*
+
+# release
+release/
