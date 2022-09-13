@@ -31,6 +31,11 @@ func (s *BenchmarkProxyService) Serve() {
 
 func (s *BenchmarkProxyService) ServeHTTP(originRespWriter http.ResponseWriter, originReq *http.Request) {
 	s.WrapInTls(originReq, originRespWriter, func(req *http.Request, respWriter http.ResponseWriter) {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println(err)
+			}
+		}()
 		executor := NewExecutor(req)
 		executor.Run()
 		respWriter.WriteHeader(http.StatusOK)
