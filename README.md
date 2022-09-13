@@ -13,3 +13,6 @@ https://www.cnblogs.com/lab-zj/p/15176787.html
 | Benchmark-Proxy-Times       | run http requests times                               |
 | Benchmark-Proxy-Duration    | run http requests duration                            |
 | Benchmark-Proxy-Concurrency | concurrency in running                                |
+
+# data sequence
+![alt 数据流图](./doc/benchmark-proxy.png)
