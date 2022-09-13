@@ -1,7 +1,7 @@
 # benchmark-proxy
 a proxy tool for HTTP/HTTPS benchmark,  use it by curl -x 
 # CA
-it's required flag ca-crt and ca-key before running the service,generate ca file could be like this way:
+it's required flag ca-crt and ca-key(using RSA algorithm) before running the service,generate ca file could be like this way:
 https://www.cnblogs.com/lab-zj/p/15176787.html
 # example 
 > curl -x 127.0.0.1:9900 http://www.baidu.com -H 'Benchmark-Proxy-Type:'times'' -H 'Benchmark-Proxy-Times:100' -H 'Benchmark-Proxy-Concurrency:100'
