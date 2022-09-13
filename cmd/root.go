@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 		ca, key := parseCA(rootCA, rootKey)
 		proxy := core.NewBenchProxyService(port, ca, key)
 		go proxy.Serve()
-		fmt.Printf("proxy started success in :%d \n", port)
+		fmt.Printf("proxy started success in 127.0.0.1:%d \n", port)
 		gracefulStop()
 	},
 }
@@ -45,8 +45,14 @@ func gracefulStop() {
 
 func parseCA(crt, key string) (rootCA *x509.Certificate, rootKey *rsa.PrivateKey) {
 	var err error
-	crtByte, _ := ioutil.ReadFile(crt)
-	keyByte, _ := ioutil.ReadFile(key)
+	crtByte, err := ioutil.ReadFile(crt)
+	if err != nil {
+		panic(fmt.Errorf("加载证书文件{ca-crt}失败: %s", err))
+	}
+	keyByte, err := ioutil.ReadFile(key)
+	if err != nil {
+		panic(fmt.Errorf("加载证书文件{ca-key}失败: %s", err))
+	}
 	block, _ := pem.Decode(crtByte)
 	rootCA, err = x509.ParseCertificate(block.Bytes)
 	if err != nil {
@@ -64,6 +70,7 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&port, "port", 9900, "proxy server bind port")
 	rootCmd.PersistentFlags().StringVar(&rootCA, "ca-crt", "ca.crt", "ca.crt file for HTTPS proxy,default: 'ca.crt' in root dir")
 	rootCmd.PersistentFlags().StringVar(&rootKey, "ca-key", "ca.key", "ca.crt file for HTTPS proxy,default: 'ca.key' in root dir")
+	rootCmd.MarkFlagsRequiredTogether("ca-crt", "ca-key")
 }
 
 func Execute() {
