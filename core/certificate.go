@@ -103,7 +103,7 @@ func template(host string, expireDays int) *x509.Certificate {
 		BasicConstraintsValid: true,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageDataEncipherment | x509.KeyUsageKeyEncipherment,
-		EmailAddresses:        []string{"zenzz01@mingyuanyun.com"},
+		EmailAddresses:        []string{"514551226@qq.com"},
 	}
 	hosts := strings.Split(host, ",")
 	for _, item := range hosts {
