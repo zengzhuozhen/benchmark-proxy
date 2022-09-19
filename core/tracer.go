@@ -2,6 +2,7 @@ package core
 
 import (
 	"crypto/tls"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptrace"
 	"sync/atomic"
@@ -67,7 +68,8 @@ func (t *HttpTracer) Result(req *http.Request, resp *http.Response) HttpTracerRe
 	result.IsSuccess = resp.StatusCode == http.StatusOK
 	result.RequestDataLen = req.ContentLength
 	result.ResponseDataLen = resp.ContentLength
-	_, _ = resp.Body.Read([]byte(result.ResponseMessage))
+	msg, _ := ioutil.ReadAll(resp.Body)
+	result.ResponseMessage = string(msg)
 	result.Duration = time.Duration(t.GotFirstResponseByteTime - t.GetConnTime)
 	return *result
 }
