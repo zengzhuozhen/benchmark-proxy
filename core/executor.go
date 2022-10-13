@@ -115,6 +115,7 @@ func (exec *BenchmarkExecTimes) Run() {
 	wg.Add(exec.proxyHeaders.ExecTimes)
 	concurrencyBuffer := make(chan struct{}, exec.proxyHeaders.ExecConcurrency)
 	go exec.statistic.Aggregate(exec.resultChan)
+	urlParser, bodyParser := NewTagCompoundParser(), NewTagCompoundParser()
 	for i := 0; i < exec.proxyHeaders.ExecTimes; i++ {
 		go func() {
 			defer wg.Done()
@@ -122,6 +123,7 @@ func (exec *BenchmarkExecTimes) Run() {
 			newReq := exec.originReq.Clone(exec.originReq.Context())
 			newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 			newReq.Header = exec.ClearHopHeaders(newReq.Header)
+			exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
 			result, err := exec.RunOnce(newReq)
 			if err == nil {
 				exec.resultChan <- result
@@ -141,6 +143,7 @@ func (exec *BenchmarkExecDuration) Run() {
 	wg := &sync.WaitGroup{}
 	go time.AfterFunc(exec.proxyHeaders.ExecDuration, cancelFunc)
 	go exec.statistic.Aggregate(exec.resultChan)
+	urlParser, bodyParser := NewTagCompoundParser(), NewTagCompoundParser()
 	for {
 		select {
 		case <-childCtx.Done():
@@ -153,6 +156,7 @@ func (exec *BenchmarkExecDuration) Run() {
 				newReq := exec.originReq.Clone(childCtx)
 				newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 				newReq.Header = exec.ClearHopHeaders(newReq.Header)
+				exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
 				result, err := exec.RunOnce(newReq)
 				if err == nil {
 					exec.resultChan <- result
@@ -170,6 +174,30 @@ OUT:
 type Executor struct {
 	statistic  *Statistic
 	resultChan chan HttpTracerResult
+}
+
+func (exec *Executor) ReplaceCustomizeTag(urlParser, bodyParser *TagCompoundParser, req *http.Request) {
+	// url
+	queryPairs := req.URL.Query()
+	for k, v := range queryPairs {
+		// 1. get need replace tag
+		var replace []string
+		for _, i := range v {
+			replace = append(replace, urlParser.ParseCustomizeTag(i)) // 2.replace every tag
+		}
+		queryPairs.Del(k)
+		for _, i := range replace { // 3.reset queryParis
+			queryPairs.Add(k, i)
+		}
+	}
+	req.URL.RawQuery = queryPairs.Encode()
+	// body
+	bodyContent, _ := ioutil.ReadAll(req.Body)
+	defer func() {
+		req.Body = io.NopCloser(bytes.NewReader(bodyContent))
+	}()
+	parseContent := bodyParser.ParseCustomizeTag(string(bodyContent))
+	bodyContent = []byte(parseContent)
 }
 
 func (exec *Executor) RunOnce(req *http.Request) (HttpTracerResult, error) {

@@ -3,6 +3,7 @@ module github.com/zengzhuozhen/benchmark-proxy
 go 1.18
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/spf13/cobra v1.5.0
 	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462
 )
