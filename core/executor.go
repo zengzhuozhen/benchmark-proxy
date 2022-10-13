@@ -174,15 +174,18 @@ type Executor struct {
 
 func (exec *Executor) RunOnce(req *http.Request) (HttpTracerResult, error) {
 	tracer := &HttpTracer{}
-	req, _ = http.NewRequest(req.Method, req.URL.String(), req.Body)
-	req = req.WithContext(httptrace.WithClientTrace(req.Context(), tracer.Trace()))
-	resp, err := http.DefaultClient.Do(req)
+	execReq, err := http.NewRequest(req.Method, req.URL.String(), req.Body)
+	execReq.Header = req.Header
 	if err != nil {
-		fmt.Printf("执行请求失败,错误原因:%s", err.Error())
-		return HttpTracerResult{}, err
+		return HttpTracerResult{}, fmt.Errorf("执行请求失败,错误原因:%s", err.Error())
+	}
+	execReq = execReq.WithContext(httptrace.WithClientTrace(execReq.Context(), tracer.Trace()))
+	resp, err := http.DefaultClient.Do(execReq)
+	if err != nil {
+		return HttpTracerResult{}, fmt.Errorf("执行请求失败,错误原因:%s", err.Error())
 	}
 	defer resp.Body.Close()
-	return tracer.Result(req, resp), nil
+	return tracer.Result(execReq, resp), nil
 }
 
 func (exec *Executor) Result() *Statistic {
