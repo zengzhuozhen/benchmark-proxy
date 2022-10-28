@@ -5,12 +5,10 @@ name: Go
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - "v*.*.*"
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -27,8 +25,9 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-    - name: Archive
+    - name: Release
       uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
           release/benchmark-proxy_linux_amd64
