@@ -2,7 +2,7 @@ on: push
 
 jobs:
   build:
-    runs-on: self-hosts
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v2
