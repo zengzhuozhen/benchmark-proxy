@@ -27,11 +27,11 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-    - name: Archive
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          release/benchmark-proxy_linux_amd64
-          release/benchmark-proxy_mac_amd64
-          release/benchmark-proxy_windows_amd64.exe
+#    - name: Archive
+#      uses: softprops/action-gh-release@v1
+#      if: startsWith(github.ref, 'refs/tags/')
+#      with:
+#        files: |
+#          release/benchmark-proxy_linux_amd64
+#          release/benchmark-proxy_mac_amd64
+#          release/benchmark-proxy_windows_amd64.exe
