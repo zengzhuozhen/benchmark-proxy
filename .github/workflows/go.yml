@@ -35,3 +35,6 @@ jobs:
           release/benchmark-proxy_linux_amd64
           release/benchmark-proxy_mac_amd64
           release/benchmark-proxy_windows_amd64.exe
+
+
+
