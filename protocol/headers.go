@@ -32,7 +32,6 @@ const (
 	BenchmarkProxyExecTimes    = "Benchmark-Proxy-Times"
 	BenchmarkProxyExecDuration = "Benchmark-Proxy-Duration"
 	BenchmarkProxyConcurrency  = "Benchmark-Proxy-Concurrency"
-	BenchmarkProxyDebug        = "Benchmark-Proxy-Debug"
 )
 const (
 	BenchProxyTypeTime     = "times"

@@ -17,13 +17,15 @@ type BenchmarkProxyService struct {
 	port    int
 	rootCA  *x509.Certificate
 	rootKey *rsa.PrivateKey
+	isDebug bool
 }
 
 func NewBenchProxyService(port int, rootCA *x509.Certificate, rootKey *rsa.PrivateKey) *BenchmarkProxyService {
 	return &BenchmarkProxyService{port: port, rootCA: rootCA, rootKey: rootKey}
 }
 
-func (s *BenchmarkProxyService) Serve() {
+func (s *BenchmarkProxyService) Serve(isDebug bool) {
+	s.isDebug = isDebug
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s); err != nil {
 		panic(err)
 	}
@@ -37,7 +39,7 @@ func (s *BenchmarkProxyService) ServeHTTP(originRespWriter http.ResponseWriter, 
 			}
 		}()
 		executor := NewExecutor(req)
-		executor.Run()
+		executor.Run(s.isDebug)
 		respWriter.WriteHeader(http.StatusOK)
 		respWriter.Write(executor.Result().Print())
 	})

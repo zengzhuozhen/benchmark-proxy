@@ -17,6 +17,7 @@ var (
 	port    int
 	rootCA  string
 	rootKey string
+	isDebug bool
 )
 
 var rootCmd = &cobra.Command{
@@ -28,8 +29,11 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ca, key := parseCA(rootCA, rootKey)
 		proxy := core.NewBenchProxyService(port, ca, key)
-		go proxy.Serve()
+		go proxy.Serve(isDebug)
 		fmt.Printf("proxy started success in 127.0.0.1:%d \n", port)
+		if isDebug {
+			fmt.Println("「DEBUG」Begin...")
+		}
 		gracefulStop()
 	},
 }
@@ -71,6 +75,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&rootCA, "ca-crt", "ca.crt", "ca.crt file for HTTPS proxy,default: 'ca.crt' in root dir")
 	rootCmd.PersistentFlags().StringVar(&rootKey, "ca-key", "ca.key", "ca.crt file for HTTPS proxy,default: 'ca.key' in root dir")
 	rootCmd.MarkFlagsRequiredTogether("ca-crt", "ca-key")
+	rootCmd.PersistentFlags().BoolVar(&isDebug, "debug", false, "debug mode")
 }
 
 func Execute() {

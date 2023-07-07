@@ -29,7 +29,7 @@ type BenchmarkReqConfig struct {
 }
 
 type BenchmarkExecutor interface {
-	Run()
+	Run(isDebug bool)
 	ClearHopHeaders(header http.Header) http.Header
 	Result() *Statistic
 }
@@ -110,7 +110,7 @@ func (config *BenchmarkReqConfig) ClearHopHeaders(originHeader http.Header) http
 	return originHeader
 }
 
-func (exec *BenchmarkExecTimes) Run() {
+func (exec *BenchmarkExecTimes) Run(isDebug bool) {
 	wg := sync.WaitGroup{}
 	wg.Add(exec.proxyHeaders.ExecTimes)
 	concurrencyBuffer := make(chan struct{}, exec.proxyHeaders.ExecConcurrency)
@@ -125,6 +125,9 @@ func (exec *BenchmarkExecTimes) Run() {
 			newReq.Header = exec.ClearHopHeaders(newReq.Header)
 			exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
 			result, err := exec.RunOnce(newReq)
+			if isDebug {
+				fmt.Printf("「DEBUG」Response Message : %s \n", result.ResponseMessage)
+			}
 			if err == nil {
 				exec.resultChan <- result
 			}
@@ -136,7 +139,7 @@ func (exec *BenchmarkExecTimes) Run() {
 	close(exec.resultChan)
 }
 
-func (exec *BenchmarkExecDuration) Run() {
+func (exec *BenchmarkExecDuration) Run(isDebug bool) {
 	ctx := exec.originReq.Context()
 	childCtx, cancelFunc := context.WithCancel(ctx)
 	concurrencyBuffer := make(chan struct{}, exec.proxyHeaders.ExecConcurrency)
@@ -158,6 +161,9 @@ func (exec *BenchmarkExecDuration) Run() {
 				newReq.Header = exec.ClearHopHeaders(newReq.Header)
 				exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
 				result, err := exec.RunOnce(newReq)
+				if isDebug {
+					fmt.Printf("「DEBUG」Response Message : %s \n", result.ResponseMessage)
+				}
 				if err == nil {
 					exec.resultChan <- result
 				}
