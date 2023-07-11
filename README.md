@@ -10,10 +10,11 @@ benchmark provides:
 
 # Requirement
 
-it's required flag ca-crt and ca-key(using RSA algorithm) before running benchmark-proxy,generate ca file could be like
-this
-way:
-https://www.cnblogs.com/lab-zj/p/15176787.html
+To use HTTPS proxy, you must generate CA files.
+1. `openssl genrsa -out ca.key 2048`
+2. `openssl req -new -x509 -key ca.key -out ca.crt -days 1095`
+3. Update the system's trusted CA certificates
+
 
 # Run
 
