@@ -63,13 +63,15 @@ func (t *HttpTracer) Trace() *httptrace.ClientTrace {
 	}
 }
 
-func (t *HttpTracer) Result(req *http.Request, resp *http.Response) HttpTracerResult {
+func (t *HttpTracer) Result(req *http.Request, resp *http.Response, checker *ResponseChecker) HttpTracerResult {
 	result := new(HttpTracerResult)
-	result.IsSuccess = resp.StatusCode == http.StatusOK
 	result.RequestDataLen = req.ContentLength
 	result.ResponseDataLen = resp.ContentLength
 	msg, _ := ioutil.ReadAll(resp.Body)
 	result.ResponseMessage = string(msg)
+	result.IsSuccess = resp.StatusCode ==
+		checker.status && (checker.body == "" || result.ResponseMessage == checker.body)
+
 	result.Duration = time.Duration(t.GotFirstResponseByteTime - t.GetConnTime)
 	return *result
 }

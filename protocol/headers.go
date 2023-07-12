@@ -28,10 +28,12 @@ var BenchmarkProxyHeaders = []string{
 }
 
 const (
-	BenchmarkProxyType         = "Benchmark-Proxy-Type" // times or duration
-	BenchmarkProxyExecTimes    = "Benchmark-Proxy-Times"
-	BenchmarkProxyExecDuration = "Benchmark-Proxy-Duration"
-	BenchmarkProxyConcurrency  = "Benchmark-Proxy-Concurrency"
+	BenchmarkProxyType              = "Benchmark-Proxy-Type" // times or duration
+	BenchmarkProxyExecTimes         = "Benchmark-Proxy-Times"
+	BenchmarkProxyExecDuration      = "Benchmark-Proxy-Duration"
+	BenchmarkProxyConcurrency       = "Benchmark-Proxy-Concurrency"
+	BenchmarkProxyCheckResultStatus = "Benchmark-Proxy-Check-Result-Status"
+	BenchmarkProxyCheckResultBody   = "Benchmark-Proxy-Check-Result-Body"
 )
 const (
 	BenchProxyTypeTime     = "times"

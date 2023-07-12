@@ -20,6 +20,7 @@ type BenchmarkProxyHeader struct {
 	ExecTimes       int
 	ExecDuration    time.Duration
 	ExecConcurrency int
+	ResponseChecker *ResponseChecker
 }
 
 type BenchmarkReqConfig struct {
@@ -69,7 +70,7 @@ func NewExecutor(req *http.Request) BenchmarkExecutor {
 }
 
 func NewProxyHeader(header http.Header) *BenchmarkProxyHeader {
-	var execTime, execDuration, execConcurrency int
+	var execTime, execDuration, execConcurrency, checkResultStatus int
 	execTimesStr := protocol.GetProxyHeaderParam(header, protocol.BenchmarkProxyExecTimes)
 	if execTimesStr != "" {
 		execTime, _ = strconv.Atoi(execTimesStr)
@@ -84,10 +85,27 @@ func NewProxyHeader(header http.Header) *BenchmarkProxyHeader {
 	if execConcurrencyStr != "" {
 		execConcurrency, _ = strconv.Atoi(execConcurrencyStr)
 	}
+
+	var responseCheckerOptions []ResponseCheckOption
+
+	checkResultStatusStr := protocol.GetProxyHeaderParam(header, protocol.BenchmarkProxyCheckResultStatus)
+	if checkResultStatusStr != "" {
+		checkResultStatus, _ = strconv.Atoi(checkResultStatusStr)
+		responseCheckerOptions = append(responseCheckerOptions, ResponseCheckerStatusRule(checkResultStatus))
+	}
+
+	checkResultBody := protocol.GetProxyHeaderParam(header, protocol.BenchmarkProxyCheckResultBody)
+	if checkResultBody != "" {
+		responseCheckerOptions = append(responseCheckerOptions, ResponseCheckerBodyRule(checkResultBody))
+	}
+
+	responseChecker := NewResponseChecker(responseCheckerOptions...)
+
 	return &BenchmarkProxyHeader{
 		ExecTimes:       execTime,
 		ExecDuration:    time.Duration(execDuration * int(time.Second)),
 		ExecConcurrency: execConcurrency,
+		ResponseChecker: responseChecker,
 	}
 }
 
@@ -124,7 +142,7 @@ func (exec *BenchmarkExecTimes) Run(isDebug bool) {
 			newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 			newReq.Header = exec.ClearHopHeaders(newReq.Header)
 			exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
-			result, err := exec.RunOnce(newReq)
+			result, err := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
 			if isDebug {
 				fmt.Printf("「DEBUG」Response Message : %s \n", result.ResponseMessage)
 			}
@@ -160,7 +178,7 @@ func (exec *BenchmarkExecDuration) Run(isDebug bool) {
 				newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 				newReq.Header = exec.ClearHopHeaders(newReq.Header)
 				exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
-				result, err := exec.RunOnce(newReq)
+				result, err := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
 				if isDebug {
 					fmt.Printf("「DEBUG」Response Message : %s \n", result.ResponseMessage)
 				}
@@ -206,7 +224,7 @@ func (exec *Executor) ReplaceCustomizeTag(urlParser, bodyParser *TagCompoundPars
 	bodyContent = []byte(parseContent)
 }
 
-func (exec *Executor) RunOnce(req *http.Request) (HttpTracerResult, error) {
+func (exec *Executor) RunOnce(req *http.Request, checker *ResponseChecker) (HttpTracerResult, error) {
 	tracer := &HttpTracer{}
 	execReq, err := http.NewRequest(req.Method, req.URL.String(), req.Body)
 	execReq.Header = req.Header
@@ -219,7 +237,7 @@ func (exec *Executor) RunOnce(req *http.Request) (HttpTracerResult, error) {
 		return HttpTracerResult{}, fmt.Errorf("执行请求失败,错误原因:%s", err.Error())
 	}
 	defer resp.Body.Close()
-	return tracer.Result(execReq, resp), nil
+	return tracer.Result(execReq, resp, checker), nil
 }
 
 func (exec *Executor) Result() *Statistic {

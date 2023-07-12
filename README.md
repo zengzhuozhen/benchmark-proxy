@@ -27,12 +27,14 @@ To use HTTPS proxy, you must generate CA files.
 
 # CustomHeaders
 
-| Header                      | Meaning                                               |
-|-----------------------------|-------------------------------------------------------|
-| Benchmark-Proxy-Type        | proxy type, it can only one of "times" and "duration" |
-| Benchmark-Proxy-Times       | run http requests times                               |
-| Benchmark-Proxy-Duration    | run http requests duration                            |
-| Benchmark-Proxy-Concurrency | concurrency in running                                |
+| Header                              | Meaning                                                              |
+|-------------------------------------|----------------------------------------------------------------------|
+| Benchmark-Proxy-Type                | proxy type, it can only one of "times" and "duration"                |
+| Benchmark-Proxy-Times               | indicate how many times exec in each http request                    |
+| Benchmark-Proxy-Duration            | indicate how much second exec in each http requests                  |
+| Benchmark-Proxy-Concurrency         | concurrency in running                                               |
+| Benchmark-Proxy-Check-Result-Status | indicate the response status to determine whether request is success |
+| Benchmark-Proxy-Check-Result-Body   | indicate the response body to determine whether request is success   |
 
 # ReplaceTag
 
