@@ -1,7 +1,6 @@
 package protocol
 
 import (
-	"golang.org/x/net/http/httpguts"
 	"net/http"
 )
 
@@ -25,19 +24,17 @@ var HopHeaders = []string{
 var BenchmarkProxyHeaders = []string{
 	BenchmarkProxyExecTimes,
 	BenchmarkProxyExecDuration,
+	BenchmarkProxyConcurrency,
+	BenchmarkProxyCheckResultStatus,
+	BenchmarkProxyCheckResultBody,
 }
 
 const (
-	BenchmarkProxyType              = "Benchmark-Proxy-Type" // times or duration
 	BenchmarkProxyExecTimes         = "Benchmark-Proxy-Times"
 	BenchmarkProxyExecDuration      = "Benchmark-Proxy-Duration"
 	BenchmarkProxyConcurrency       = "Benchmark-Proxy-Concurrency"
 	BenchmarkProxyCheckResultStatus = "Benchmark-Proxy-Check-Result-Status"
 	BenchmarkProxyCheckResultBody   = "Benchmark-Proxy-Check-Result-Body"
-)
-const (
-	BenchProxyTypeTime     = "times"
-	BenchProxyTypeDuration = "duration"
 )
 
 func CopyHeader(dst, src http.Header) {
@@ -53,8 +50,4 @@ func GetProxyHeaderParam(header http.Header, key string) string {
 		return val[0]
 	}
 	return ""
-}
-
-func CheckProxyHeader(header http.Header, val string) bool {
-	return httpguts.HeaderValuesContainsToken(header[BenchmarkProxyType], val)
 }

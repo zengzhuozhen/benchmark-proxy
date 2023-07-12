@@ -43,7 +43,11 @@ func NewExecutor(req *http.Request) BenchmarkExecutor {
 		req.Header.Del(i)
 	}
 	proxyHeader := NewProxyHeader(header)
-	if protocol.CheckProxyHeader(header, protocol.BenchProxyTypeTime) {
+	if proxyHeader.ExecTimes == 0 && proxyHeader.ExecDuration == time.Duration(0) {
+		panic(fmt.Sprintf("unKnow Benchmark Proxy type, use one of these (%s and %s) header ",
+			protocol.BenchmarkProxyExecTimes, protocol.BenchmarkProxyExecDuration))
+	}
+	if proxyHeader.ExecTimes > 0 {
 		return &BenchmarkExecTimes{
 			ctx: context.Background(),
 			BenchmarkReqConfig: BenchmarkReqConfig{
@@ -54,19 +58,16 @@ func NewExecutor(req *http.Request) BenchmarkExecutor {
 			Executor: Executor{new(Statistic), make(chan HttpTracerResult)},
 		}
 	}
-	if protocol.CheckProxyHeader(header, protocol.BenchProxyTypeDuration) {
-		return &BenchmarkExecDuration{
-			ctx: context.Background(),
-			BenchmarkReqConfig: BenchmarkReqConfig{
-				proxyHeaders: proxyHeader,
-				body:         body,
-				originReq:    req,
-			},
-			Executor: Executor{new(Statistic), make(chan HttpTracerResult)},
-		}
+	return &BenchmarkExecDuration{
+		ctx: context.Background(),
+		BenchmarkReqConfig: BenchmarkReqConfig{
+			proxyHeaders: proxyHeader,
+			body:         body,
+			originReq:    req,
+		},
+		Executor: Executor{new(Statistic), make(chan HttpTracerResult)},
 	}
-	panic(fmt.Sprintf("unKnow Benchmark Proxy type, did you forget set %s Header or with wrong value (%s or %s)?",
-		protocol.BenchmarkProxyType, protocol.BenchProxyTypeTime, protocol.BenchProxyTypeDuration))
+
 }
 
 func NewProxyHeader(header http.Header) *BenchmarkProxyHeader {
@@ -171,8 +172,8 @@ func (exec *BenchmarkExecDuration) Run(isDebug bool) {
 			goto OUT
 		default:
 			concurrencyBuffer <- struct{}{}
+			wg.Add(1)
 			go func() {
-				wg.Add(1)
 				defer wg.Done()
 				newReq := exec.originReq.Clone(childCtx)
 				newReq.Body = io.NopCloser(bytes.NewReader(exec.body))

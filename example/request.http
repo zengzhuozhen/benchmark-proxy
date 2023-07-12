@@ -2,16 +2,24 @@
 GET http://localhost:9900
 Content-Type: application/json
 Host: www.baidu.com
-Benchmark-Proxy-Type: times
 Benchmark-Proxy-Times: 1
 Benchmark-Proxy-Concurrency:1
 Benchmark-Proxy-Check-Result-Status: 200
+
+
+### GET
+GET http://localhost:9900
+Content-Type: application/json
+Host: www.baidu.com
+Benchmark-Proxy-Duration: 1
+Benchmark-Proxy-Concurrency:1
+Benchmark-Proxy-Check-Result-Status: 200
+
 
 ### POST
 POST http://localhost:9900
 Content-Type: application/json
 Host: 127.0.0.1:8080
-Benchmark-Proxy-Type: times
 Benchmark-Proxy-Times: 1
 Benchmark-Proxy-Concurrency:1
 
@@ -25,7 +33,6 @@ Benchmark-Proxy-Concurrency:1
 GET http://localhost:9900/index.html?a=${int}
 Content-Type: application/json
 Host: 127.0.0.1:8080
-Benchmark-Proxy-Type: times
 Benchmark-Proxy-Times: 1
 Benchmark-Proxy-Concurrency:1
 
@@ -34,7 +41,6 @@ Benchmark-Proxy-Concurrency:1
 POST http://localhost:9900
 Content-Type: application/json
 Host: 127.0.0.1:8080
-Benchmark-Proxy-Type: times
 Benchmark-Proxy-Times: 10
 Benchmark-Proxy-Concurrency:10
 

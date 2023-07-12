@@ -29,7 +29,6 @@ To use HTTPS proxy, you must generate CA files.
 
 | Header                              | Meaning                                                              |
 |-------------------------------------|----------------------------------------------------------------------|
-| Benchmark-Proxy-Type                | proxy type, it can only one of "times" and "duration"                |
 | Benchmark-Proxy-Times               | indicate how many times exec in each http request                    |
 | Benchmark-Proxy-Duration            | indicate how much second exec in each http requests                  |
 | Benchmark-Proxy-Concurrency         | concurrency in running                                               |
