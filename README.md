@@ -37,9 +37,9 @@ To use HTTPS proxy, you must generate CA files.
 
 ### Response Checker
 example : 
-`Benchmark-Proxy-Check-Result-Status: 200` Indicate http request is success that response status is 200 
-`Benchmark-Proxy-Check-Result-Body: hello world` Indicate http request is success return that http response body is 'hello world'
-`Benchmark-Proxy-Check-Result-Body: @Reg[\w]` Indicate http request is success return that http response body is satisfied with provider regexp rule
+1. `Benchmark-Proxy-Check-Result-Status: 200` Indicate http request is success that response status is 200 
+2. `Benchmark-Proxy-Check-Result-Body: hello world` Indicate http request is success return that http response body is 'hello world'
+3. `Benchmark-Proxy-Check-Result-Body: @Reg[\w]` Indicate http request is success return that http response body is satisfied with provider regexp rule
 
 
 # ReplaceTag
