@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zengzhuozhen/benchmark-proxy/core"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -32,10 +33,17 @@ var rootCmd = &cobra.Command{
 		go proxy.Serve(isDebug)
 		fmt.Printf("proxy started success in 127.0.0.1:%d \n", port)
 		if isDebug {
+			go pprof()
 			fmt.Println("「DEBUG」Begin...")
 		}
 		gracefulStop()
 	},
+}
+
+func pprof() {
+	if err := http.ListenAndServe("127.0.0.1:6060", nil); err != nil {
+		fmt.Printf("start pprof failed")
+	}
 }
 
 func gracefulStop() {
