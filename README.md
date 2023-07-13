@@ -35,6 +35,13 @@ To use HTTPS proxy, you must generate CA files.
 | Benchmark-Proxy-Check-Result-Status | indicate the response status to determine whether request is success |
 | Benchmark-Proxy-Check-Result-Body   | indicate the response body to determine whether request is success   |
 
+### Response Checker
+example : 
+`Benchmark-Proxy-Check-Result-Status: 200` Indicate http request is success that response status is 200 
+`Benchmark-Proxy-Check-Result-Body: hello world` Indicate http request is success return that http response body is 'hello world'
+`Benchmark-Proxy-Check-Result-Body: @Reg[\w]` Indicate http request is success return that http response body is satisfied with provider regexp rule
+
+
 # ReplaceTag
 
 | Tag       | Example                                                     |

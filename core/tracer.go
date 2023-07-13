@@ -69,9 +69,7 @@ func (t *HttpTracer) Result(req *http.Request, resp *http.Response, checker *Res
 	result.ResponseDataLen = resp.ContentLength
 	msg, _ := ioutil.ReadAll(resp.Body)
 	result.ResponseMessage = string(msg)
-	result.IsSuccess = resp.StatusCode ==
-		checker.status && (checker.body == "" || result.ResponseMessage == checker.body)
-
+	result.IsSuccess = checker.CheckStatus(resp.StatusCode) && checker.CheckBody(result.ResponseMessage)
 	result.Duration = time.Duration(t.GotFirstResponseByteTime - t.GetConnTime)
 	return *result
 }

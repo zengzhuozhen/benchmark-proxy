@@ -1,10 +1,27 @@
 package core
 
-import "net/http"
+import (
+	"net/http"
+	"regexp"
+)
 
 type ResponseChecker struct {
-	status int
-	body   string
+	status           int
+	body             string
+	isCustomReg      bool
+	customRegPattern *regexp.Regexp
+}
+
+func (c *ResponseChecker) CheckStatus(responseStatus int) bool {
+	return responseStatus == c.status
+}
+
+func (c *ResponseChecker) CheckBody(responseMessage string) bool {
+	if c.isCustomReg {
+		return c.customRegPattern.MatchString(responseMessage)
+	}
+	return responseMessage == c.body
+
 }
 
 type ResponseCheckOption func(checker *ResponseChecker)
@@ -27,5 +44,12 @@ func ResponseCheckerStatusRule(status int) ResponseCheckOption {
 func ResponseCheckerBodyRule(body string) ResponseCheckOption {
 	return func(checker *ResponseChecker) {
 		checker.body = body
+		pattern := `@Reg\[(.+?)\]`
+		re := regexp.MustCompile(pattern)
+		match := re.FindStringSubmatch(body)
+		if len(match) > 1 {
+			checker.isCustomReg = true
+			checker.customRegPattern = regexp.MustCompile(match[1])
+		}
 	}
 }
