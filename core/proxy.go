@@ -39,7 +39,7 @@ func (s *BenchmarkProxyService) ServeHTTP(originRespWriter http.ResponseWriter, 
 			}
 		}()
 		executor := NewExecutor(req)
-		executor.Run(s.isDebug)
+		executor.Run2(s.isDebug)
 		respWriter.WriteHeader(http.StatusOK)
 		respWriter.Write(executor.Result().Print())
 	})

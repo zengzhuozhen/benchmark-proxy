@@ -19,7 +19,7 @@ Benchmark-Proxy-Check-Result-Status: 200
 GET http://localhost:9900
 Content-Type: application/json
 Host: localhost:8888
-Benchmark-Proxy-Duration: 1
+Benchmark-Proxy-Times: 30000
 Benchmark-Proxy-Concurrency:300
 Benchmark-Proxy-Check-Result-Status: 200
 Benchmark-Proxy-Check-Result-Body: @Reg[\w]
