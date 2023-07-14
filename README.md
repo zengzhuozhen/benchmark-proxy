@@ -7,6 +7,7 @@ a proxy tool for HTTP/HTTPS benchmark test
 - benchmark for api request
 - statistics spend time,success count and error count of requests
 - replace data(query's param or body) by tag in proxy request
+- check request api response data and status for diagnose success or fail
 
 # Requirement
 
