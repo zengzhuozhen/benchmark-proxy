@@ -13,7 +13,6 @@ type Pool struct {
 	cap      int
 	taskChan chan Task
 	taskWg   sync.WaitGroup
-	cond     *sync.Cond
 }
 
 func NewPool(cap int) *Pool {
@@ -21,7 +20,6 @@ func NewPool(cap int) *Pool {
 	p := &Pool{
 		taskChan: make(chan Task),
 		taskWg:   sync.WaitGroup{},
-		cond:     sync.NewCond(&sync.Mutex{}),
 		cap:      cap,
 		ctx:      ctx,
 		cancelFn: cancelFn,
