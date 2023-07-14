@@ -1,7 +1,7 @@
+English | [中文](README_ZH.md)
 # Overview
 
-a proxy tool for HTTP/HTTPS benchmark, use it by curl -x
-benchmark provides:
+a proxy tool for HTTP/HTTPS benchmark test
 
 - HTTP/HTTPS proxy
 - benchmark for api request
