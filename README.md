@@ -44,13 +44,13 @@ example :
 
 # ReplaceTag
 
-| Tag       | Example                                                     |
-|-----------|-------------------------------------------------------------|
-| ${uuid}   | d035581b-53a3-48e5-9461-ba24709f06c9                        |
-| ${int}    | 6331615752200874333                                         |
-| ${float}  | 0.681078                                                    |
-| ${string} | 295dfd92fcd9cd9e43cfa5b2b87e806dda83eb3d7dfd97d5ef          |
-| ${incr}   | 1(default:1,it will auto increment in every proxy request ) |
+| Tag       | Example                                            |
+|-----------|----------------------------------------------------|
+| ${uuid}   | d035581b-53a3-48e5-9461-ba24709f06c9               |
+| ${int}    | 6331615752200874333                                |
+| ${float}  | 0.681078                                           |
+| ${string} | 295dfd92fcd9cd9e43cfa5b2b87e806dda83eb3d7dfd97d5ef |
+| ${incr}   | 1(默认:1,代理接口每次被请求时都会将该值+1 )                         |
 
 # Architecture
 
