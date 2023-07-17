@@ -12,15 +12,19 @@ type ResponseChecker struct {
 	customRegPattern *regexp.Regexp
 }
 
-func (c *ResponseChecker) CheckStatus(responseStatus int) bool {
+func (c *ResponseChecker) Check(responseStatus int, responseMessage string) bool {
+	return c.checkStatus(responseStatus) && c.checkBody(responseMessage)
+}
+
+func (c *ResponseChecker) checkStatus(responseStatus int) bool {
 	return responseStatus == c.status
 }
 
-func (c *ResponseChecker) CheckBody(responseMessage string) bool {
+func (c *ResponseChecker) checkBody(responseMessage string) bool {
 	if c.isCustomReg {
 		return c.customRegPattern.MatchString(responseMessage)
 	}
-	return responseMessage == c.body
+	return c.body == "" || responseMessage == c.body
 
 }
 
