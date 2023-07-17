@@ -2,6 +2,7 @@ package core
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptrace"
@@ -37,6 +38,7 @@ type DurationInfo struct {
 }
 
 func NewDurationInfo(t *HttpTracer) DurationInfo {
+	// bug:after first request,other request data maybe wrong
 	now := time.Now()
 	dnsLookup := t.DNSDone.Sub(t.DNSStart).Milliseconds()
 	tcpConnection := t.ConnectDone.Sub(t.ConnectStart).Milliseconds()
@@ -50,6 +52,7 @@ func NewDurationInfo(t *HttpTracer) DurationInfo {
 	if !t.DNSStart.IsZero() {
 		start = t.DNSStart
 	}
+
 	return DurationInfo{
 		Total:            now.Sub(start).Milliseconds(),
 		DNSLookup:        dnsLookup,
@@ -72,6 +75,9 @@ func (t *HttpTracer) Trace() *httptrace.ClientTrace {
 			t.ConnectStart = time.Now()
 		},
 		ConnectDone: func(network, addr string, err error) {
+			if err != nil {
+				fmt.Println("http trace error.ConnectDone:", err.Error())
+			}
 			t.ConnectDone = time.Now()
 		},
 		GotConn: func(info httptrace.GotConnInfo) {
@@ -84,6 +90,9 @@ func (t *HttpTracer) Trace() *httptrace.ClientTrace {
 			t.TLSHandShakeStart = time.Now()
 		},
 		TLSHandshakeDone: func(state tls.ConnectionState, err error) {
+			if err != nil {
+				fmt.Println("http trace error.TLSHandshakeDone:", err.Error())
+			}
 			t.TLSHandSHakeDone = time.Now()
 		},
 	}
@@ -91,11 +100,11 @@ func (t *HttpTracer) Trace() *httptrace.ClientTrace {
 
 func (t *HttpTracer) Result(req *http.Request, resp *http.Response, checker *ResponseChecker) HttpTracerResult {
 	result := new(HttpTracerResult)
-	result.Duration = NewDurationInfo(t)
 	result.RequestDataLen = req.ContentLength
 	result.ResponseDataLen = resp.ContentLength
 	msg, _ := ioutil.ReadAll(resp.Body)
 	result.ResponseMessage = string(msg)
 	result.IsSuccess = checker.Check(resp.StatusCode, result.ResponseMessage)
+	result.Duration = NewDurationInfo(t)
 	return *result
 }
