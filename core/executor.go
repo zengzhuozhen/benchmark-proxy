@@ -299,7 +299,12 @@ func (exec *Executor) RunOnce(req *http.Request, checker *ResponseChecker) (Http
 		return HttpTracerResult{}, fmt.Errorf("执行请求失败,错误原因:%s", err.Error())
 	}
 	execReq = execReq.WithContext(httptrace.WithClientTrace(execReq.Context(), tracer.Trace()))
-	resp, err := new(http.Client).Do(execReq)
+	client := &http.Client{
+		Transport: &http.Transport{
+			DisableKeepAlives: true,
+		},
+	}
+	resp, err := client.Do(execReq)
 	if err != nil {
 		return HttpTracerResult{}, fmt.Errorf("执行请求失败,错误原因:%s", err.Error())
 	}

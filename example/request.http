@@ -10,9 +10,9 @@ Benchmark-Proxy-Check-Result-Status: 200
 ### GET
 GET http://localhost:9900
 Content-Type: application/json
-Host: www.baidu.com
-Benchmark-Proxy-Times: 1000
-Benchmark-Proxy-Concurrency:100
+Host: www.qq.com
+Benchmark-Proxy-Times: 100
+Benchmark-Proxy-Concurrency:1
 Benchmark-Proxy-Check-Result-Status: 200
 
 ### GET
