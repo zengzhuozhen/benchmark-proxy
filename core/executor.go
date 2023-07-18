@@ -230,6 +230,7 @@ OUT:
 }
 
 func (exec *BenchmarkExecDuration) Run2(isDebug bool) {
+	pool.setCap(exec.proxyHeaders.ExecConcurrency)
 	ctx := exec.originReq.Context()
 	childCtx, cancelFunc := context.WithCancel(ctx)
 	go time.AfterFunc(exec.proxyHeaders.ExecDuration, cancelFunc)

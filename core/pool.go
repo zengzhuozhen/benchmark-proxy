@@ -30,6 +30,7 @@ func NewPool(cap int) *Pool {
 
 func (p *Pool) setCap(cap int) {
 	p.cap = cap
+	// reset the ctx and cancel func, notify old goroutine exit
 	p.cancelFn()
 	ctx, cancelFn := context.WithCancel(context.TODO())
 	p.ctx = ctx
