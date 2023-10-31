@@ -84,6 +84,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&rootKey, "ca-key", "ca.key", "ca.crt file for HTTPS proxy,default: 'ca.key' in root dir")
 	rootCmd.MarkFlagsRequiredTogether("ca-crt", "ca-key")
 	rootCmd.PersistentFlags().BoolVar(&isDebug, "debug", false, "debug mode")
+
+	// subCmd
+	rootCmd.AddCommand(tagsCmd)
 }
 
 func Execute() {

@@ -10,11 +10,15 @@ import (
 )
 
 const (
-	TagUUID   = "uuid"
-	TagInt    = "int"
-	TagString = "string"
-	TagFloat  = "float"
-	TagIncr   = "incr"
+	TagUUID    = "uuid"
+	TagInt8    = "int8"
+	TagInt16   = "int16"
+	TagInt32   = "int32"
+	TagInt     = "int"
+	TagString  = "string"
+	TagFloat   = "float"
+	TagFloat64 = "float64"
+	TagIncr    = "incr"
 )
 
 func NewTagCompoundParser() *TagCompoundParser {
@@ -31,8 +35,16 @@ func (p *TagCompoundParser) ParseCustomizeTag(content string) string {
 		switch s {
 		case fmt.Sprintf("${%s}", TagInt):
 			return fmt.Sprintf("%d", rand.Int())
+		case fmt.Sprintf("${%s}", TagInt8):
+			return fmt.Sprintf("%d", rand.Int31()>>24)
+		case fmt.Sprintf("${%s}", TagInt16):
+			return fmt.Sprintf("%d", rand.Int31()>>16)
+		case fmt.Sprintf("${%s}", TagInt32):
+			return fmt.Sprintf("%d", rand.Int31())
 		case fmt.Sprintf("${%s}", TagFloat):
 			return fmt.Sprintf("%f", rand.Float32())
+		case fmt.Sprintf("${%s}", TagFloat64):
+			return fmt.Sprintf("%f", rand.Float64())
 		case fmt.Sprintf("${%s}", TagString):
 			rand.Seed(time.Now().UnixNano())
 			result := make([]byte, 50/2)

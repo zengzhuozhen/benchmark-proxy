@@ -1,6 +1,9 @@
 package core
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestParseCustomizeTag(t *testing.T) {
 	type args struct {
@@ -20,6 +23,27 @@ func TestParseCustomizeTag(t *testing.T) {
 				notWant: "{${int}:123}",
 			},
 			{
+				name: "替换${int8}",
+				args: args{
+					content: "{${int8}:123}",
+				},
+				notWant: "{${int8}:123}",
+			},
+			{
+				name: "替换${int16}",
+				args: args{
+					content: "{${int16}:123}",
+				},
+				notWant: "{${int16}:123}",
+			},
+			{
+				name: "替换${int32}",
+				args: args{
+					content: "{${int32}:123}",
+				},
+				notWant: "{${int32}:123}",
+			},
+			{
 				name: "替换${float}",
 				args: args{
 					content: "{${float}:123}",
@@ -27,11 +51,18 @@ func TestParseCustomizeTag(t *testing.T) {
 				notWant: "{${float}:123}",
 			},
 			{
+				name: "替换${float64}",
+				args: args{
+					content: "{${float64}:123}",
+				},
+				notWant: "{${float64}:123}",
+			},
+			{
 				name: "替换${string}",
 				args: args{
-					content: "{\"${string\"}:123}",
+					content: "{${string}:123}",
 				},
-				notWant: "{\"${string}\":123}",
+				notWant: "{${string}:123}",
 			},
 			{
 				name: "替换${incr}",
@@ -53,6 +84,8 @@ func TestParseCustomizeTag(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := NewTagCompoundParser().ParseCustomizeTag(tt.args.content); got == tt.notWant {
 				t.Errorf("ParseCustomizeTag() = %v, notWant %v", got, tt.notWant)
+			} else {
+				fmt.Println("got:", got)
 			}
 		})
 	}
