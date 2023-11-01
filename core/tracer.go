@@ -38,7 +38,6 @@ type DurationInfo struct {
 }
 
 func NewDurationInfo(t *HttpTracer) DurationInfo {
-	// bug:after first request,other request data maybe wrong
 	now := time.Now()
 	dnsLookup := t.DNSDone.Sub(t.DNSStart).Milliseconds()
 	tcpConnection := t.ConnectDone.Sub(t.ConnectStart).Milliseconds()

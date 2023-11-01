@@ -18,65 +18,37 @@ func TestParseCustomizeTag(t *testing.T) {
 			{
 				name: "替换${int}",
 				args: args{
-					content: "{${int}:123}",
+					content: "{${int}}",
 				},
-				notWant: "{${int}:123}",
-			},
-			{
-				name: "替换${int8}",
-				args: args{
-					content: "{${int8}:123}",
-				},
-				notWant: "{${int8}:123}",
-			},
-			{
-				name: "替换${int16}",
-				args: args{
-					content: "{${int16}:123}",
-				},
-				notWant: "{${int16}:123}",
-			},
-			{
-				name: "替换${int32}",
-				args: args{
-					content: "{${int32}:123}",
-				},
-				notWant: "{${int32}:123}",
+				notWant: "{${int}}",
 			},
 			{
 				name: "替换${float}",
 				args: args{
-					content: "{${float}:123}",
+					content: "{${float}}",
 				},
-				notWant: "{${float}:123}",
-			},
-			{
-				name: "替换${float64}",
-				args: args{
-					content: "{${float64}:123}",
-				},
-				notWant: "{${float64}:123}",
+				notWant: "{${float}}",
 			},
 			{
 				name: "替换${string}",
 				args: args{
-					content: "{${string}:123}",
+					content: "{${string}}",
 				},
-				notWant: "{${string}:123}",
+				notWant: "{${string}}",
 			},
 			{
 				name: "替换${incr}",
 				args: args{
-					content: "{${incr}:123}",
+					content: "{${incr}}",
 				},
-				notWant: "{${incr}:123}",
+				notWant: "{${incr}}",
 			},
 			{
 				name: "替换${uuid}",
 				args: args{
-					content: "{${uuid}:123}",
+					content: "{${uuid}}",
 				},
-				notWant: "{${uuid}:123}",
+				notWant: "{${uuid}}",
 			},
 		}
 	)

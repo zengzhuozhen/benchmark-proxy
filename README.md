@@ -1,4 +1,5 @@
 English | [中文](README_ZH.md)
+
 # Overview
 
 a proxy tool for HTTP/HTTPS benchmark test
@@ -12,10 +13,10 @@ a proxy tool for HTTP/HTTPS benchmark test
 # Requirement
 
 To use HTTPS proxy, you must generate CA files.
+
 1. `openssl genrsa -out ca.key 2048`
 2. `openssl req -new -x509 -key ca.key -out ca.crt -days 1095`
 3. Update the system's trusted CA certificates
-
 
 # Run
 
@@ -37,20 +38,23 @@ To use HTTPS proxy, you must generate CA files.
 | Benchmark-Proxy-Check-Result-Body   | indicate the response body to determine whether request is success   |
 
 ### Response Checker
-example : 
-1. `Benchmark-Proxy-Check-Result-Status: 200` Indicate http request is success that response status is 200 
-2. `Benchmark-Proxy-Check-Result-Body: hello world` Indicate http request is success return that http response body is 'hello world'
-3. `Benchmark-Proxy-Check-Result-Body: @Reg[\w]` Indicate http request is success return that http response body is satisfied with provider regexp rule
 
+example :
+
+1. `Benchmark-Proxy-Check-Result-Status: 200` Indicate http request is success that response status is 200
+2. `Benchmark-Proxy-Check-Result-Body: hello world` Indicate http request is success return that http response body is '
+   hello world'
+3. `Benchmark-Proxy-Check-Result-Body: @Reg[\w]` Indicate http request is success return that http response body is
+   satisfied with provider regexp rule
 
 # ReplaceTag
 
 | Tag       | Example                                                     |
 |-----------|-------------------------------------------------------------|
 | ${uuid}   | d035581b-53a3-48e5-9461-ba24709f06c9                        |
-| ${int}    | 6331615752200874333                                         |
-| ${float}  | 0.681078                                                    |
-| ${string} | 295dfd92fcd9cd9e43cfa5b2b87e806dda83eb3d7dfd97d5ef          |
+| ${int}    | 77                                                          |
+| ${float}  | 0.94                                                        |
+| ${string} | 762edb6805                                                  |
 | ${incr}   | 1(default:1,it will auto increment in every proxy request ) |
 
 # Architecture
