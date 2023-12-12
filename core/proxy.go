@@ -52,6 +52,11 @@ func (s *BenchmarkProxyService) WrapInTls(originReq *http.Request, originRespWri
 		fn(originReq, originRespWriter)
 		return
 	}
+	if s.rootKey == nil || s.rootCA == nil {
+		http.Error(originRespWriter, "未加载证书，不支持https协议", http.StatusBadRequest)
+		return
+	}
+
 	hijacker, ok := originRespWriter.(http.Hijacker)
 	if !ok {
 		http.Error(originRespWriter, "Hijacking not supported", http.StatusInternalServerError)

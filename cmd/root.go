@@ -54,8 +54,21 @@ func gracefulStop() {
 	os.Exit(0)
 }
 
+func checkFilesExist(files ...string) bool {
+	for _, i := range files {
+		_, err := os.Stat(i)
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
+}
+
 func parseCA(crt, key string) (rootCA *x509.Certificate, rootKey *rsa.PrivateKey) {
 	var err error
+	if !checkFilesExist(crt, key) {
+		return
+	}
 	crtByte, err := ioutil.ReadFile(crt)
 	if err != nil {
 		panic(fmt.Errorf("加载证书文件{ca-crt}失败: %s", err))

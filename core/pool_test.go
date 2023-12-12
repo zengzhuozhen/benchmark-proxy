@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -11,7 +10,6 @@ func TestPool(t *testing.T) {
 
 	task := createTask(func() {
 		i++
-		fmt.Println(i)
 	})
 
 	for j := 0; j < 100; j++ {
@@ -24,6 +22,5 @@ func TestPool(t *testing.T) {
 		pool.addTask(task)
 	}
 
-	a := make(chan struct{})
-	a <- struct{}{}
+	pool.wait()
 }
