@@ -24,8 +24,7 @@ To use HTTPS proxy, you must generate CA files.
 
 # Request Example
 
-> curl -x 127.0.0.1:9900 http://www.baidu.com -H 'Benchmark-Proxy-Type:'times'' -H 'Benchmark-Proxy-Times:100' -H '
-> Benchmark-Proxy-Concurrency:100'
+> curl -x 127.0.0.1:9900 https://www.baidu.com -H 'Benchmark-Proxy-Times:1' -H 'Benchmark-Proxy-Concurrency:1'
 
 # CustomHeaders
 

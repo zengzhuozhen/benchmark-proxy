@@ -44,6 +44,8 @@ func GenerateTlsConfig(host string, rootCA *x509.Certificate, rootKey *rsa.Priva
 	}
 	tlsConf := &tls.Config{
 		Certificates: []tls.Certificate{cert},
+		MinVersion:   tls.VersionTLS12,
+		MaxVersion:   tls.VersionTLS12,
 	}
 	return tlsConf, nil
 }
@@ -103,7 +105,7 @@ func template(host string, expireDays int) *x509.Certificate {
 		BasicConstraintsValid: true,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageDataEncipherment | x509.KeyUsageKeyEncipherment,
-		EmailAddresses:        []string{"Zengzz01@gmail.com"},
+		EmailAddresses:        []string{"zengzz1997@gmail.com"},
 	}
 	hosts := strings.Split(host, ",")
 	for _, item := range hosts {

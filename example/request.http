@@ -1,19 +1,5 @@
-# curl
-#--request POST 'http://localhost:3000/forms/chromium/convert/url'
-#--form 'url="https://sparksuite.github.io/simple-html-invoice-template/"' \
-POST http://localhost:3000/forms/chromium/convert/url
-Content-Type: multipart/form-data; boundary=WebAppBoundary
-
---WebAppBoundary
-Content-Disposition: form-data; name="url"
-
-"https://sparksuite.github.io/simple-html-invoice-template/"
---WebAppBoundary--
-
-###
-
-
-
+### Warning: those request can't using HTTPS scheme in localhost:9900 cause those not proxy request like curl -x
+### 警告：以下请求不能使用 HTTPS 请求本地 localhost:9900 端口，因为这些不像 curl -x 使用代理方式而是直接请求到本服务
 
 
 ### GET
@@ -29,7 +15,7 @@ Benchmark-Proxy-Check-Result-Status: 200
 GET http://localhost:9900
 Content-Type: application/json
 Host: www.qq.com
-Benchmark-Proxy-Times: 100
+Benchmark-Proxy-Times: 1
 Benchmark-Proxy-Concurrency:1
 Benchmark-Proxy-Check-Result-Status: 200
 
@@ -79,16 +65,26 @@ Benchmark-Proxy-Concurrency:10
 }
 
 
-### POST
-POST http://localhost:9900/forms/chromium/convert/url
+### POST gotenberg
+POST http://localhost:9900/forms/chromium/convert/html
 Host: 127.0.0.1:3000
-Benchmark-Proxy-Times: 50
-Benchmark-Proxy-Concurrency:15
+Benchmark-Proxy-Times:100
+Benchmark-Proxy-Concurrency:10
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
-Content-Disposition: form-data; name="url"
+Content-Disposition: form-data; name="files"; filename="index.html"
 
-https://test-filebox-trade.myscrm.cn/27%2Ftrade-center%2FYKSaaSPublic/2afc2b81-534a-4e5b-93fb-fc0a64cf3f8c.html.html?Expires=1702368434&OSSAccessKeyId=LTAI5tNfRco2ctSY4NhByr15&Signature=QyD%2B3PvyqBtAeAy7Exs28oeGuG4%3D
+< /Users/zzz/Desktop/index.html
 --WebAppBoundary--
 
+
+
+
+
+### POST wkhtmltopdf
+POST http://localhost:9900/convert
+Host: 127.0.0.1:8080
+Benchmark-Proxy-Times:100
+Benchmark-Proxy-Concurrency:10
+Content-Type: multipart/form-data; boundary=WebAppBoundary

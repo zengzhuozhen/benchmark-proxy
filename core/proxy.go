@@ -56,7 +56,6 @@ func (s *BenchmarkProxyService) WrapInTls(originReq *http.Request, originRespWri
 		http.Error(originRespWriter, "未加载证书，不支持https协议", http.StatusBadRequest)
 		return
 	}
-
 	hijacker, ok := originRespWriter.(http.Hijacker)
 	if !ok {
 		http.Error(originRespWriter, "Hijacking not supported", http.StatusInternalServerError)
@@ -68,7 +67,7 @@ func (s *BenchmarkProxyService) WrapInTls(originReq *http.Request, originRespWri
 		return
 	}
 	defer clientConn.Close()
-	clientConn.Write([]byte("HTTP/1.1 200 Connection established\n\n"))
+	clientConn.Write([]byte("HTTP/1.1 200 Connection established\r\n\r\n"))
 
 	tlsConfig, err := GenerateTlsConfig(originReq.URL.Host, s.rootCA, s.rootKey)
 	if err != nil {

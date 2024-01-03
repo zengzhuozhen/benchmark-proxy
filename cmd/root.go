@@ -87,6 +87,9 @@ func parseCA(crt, key string) (rootCA *x509.Certificate, rootKey *rsa.PrivateKey
 	if err != nil {
 		panic(fmt.Errorf("加载根证书私钥失败: %s", err))
 	}
+	if isDebug {
+		fmt.Println("加载证书成功")
+	}
 	return
 }
 
