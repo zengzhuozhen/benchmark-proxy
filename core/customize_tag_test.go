@@ -57,6 +57,13 @@ func TestParseCustomizeTag(t *testing.T) {
 				},
 				notWant: "{${list:[30,60]}}",
 			},
+			{
+				name: "替换${range:[30,60]}",
+				args: args{
+					content: "{${range:[30,60]}}",
+				},
+				notWant: "{${range:[30,60]}}",
+			},
 		}
 	)
 	for _, tt := range tests {
