@@ -1,7 +1,7 @@
 .idea/
 
-# CA
-ca.*
+# resource
+resources
 
 # release
 
