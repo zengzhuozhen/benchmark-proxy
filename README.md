@@ -10,13 +10,14 @@ a proxy tool for HTTP/HTTPS benchmark test
 - replace data(query's param or body) by tag in proxy request
 - check request api response data and status for diagnose success or fail
 
-# Requirement
+# Optional
 
-To use HTTPS proxy, you must generate CA files.
+self-provision certificates is optional while using HTTPS
 
 1. `openssl genrsa -out ca.key 2048`
 2. `openssl req -new -x509 -key ca.key -out ca.crt -days 1095`
-3. Update the system's trusted CA certificates
+3. `move ca.* resources/`
+4. Update the system's trusted certificates
 
 # Run
 

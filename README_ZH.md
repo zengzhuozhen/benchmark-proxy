@@ -2,7 +2,7 @@
 
 # 简介
 
-benchmark-proxy 是一个用于 HTTP/HTTPS 接口基准测试的代理工具。更具体的，它是:
+benchmark-proxy 是一个用于 HTTP/HTTPS 接口基准性能测试的代理工具。更具体的，它是:
 
 - 一个 HTTP/HTTPS 代理服务
 - 用于API接口基准测试/并发测试
@@ -10,13 +10,14 @@ benchmark-proxy 是一个用于 HTTP/HTTPS 接口基准测试的代理工具。�
 - 能够采用标签替换方式传递变量数据
 - 检查接口返回状态码和数据来判断成功或失败
 
-# 要求
+# 可选
 
-使用该项目，需要生成相关的CA文件
+ 使用 HTTPS 时可以选择生成自己的CA文件
 
 1. `openssl genrsa -out ca.key 2048`
 2. `openssl req -new -x509 -key ca.key -out ca.crt -days 1095`
-3. 更新系统信任证书
+3. `move ca.* resources/`
+4. 更新系统信任证书
 
 # 运行
 
