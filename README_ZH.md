@@ -21,13 +21,13 @@ benchmark-proxy 是一个用于 HTTP/HTTPS 接口基准性能测试的代理工�
 
 # 运行
 
-> benchmark-proxy --port {port} --ca-crt {file_path} --ca-key {file_path}
+> benchmark-proxy --port {port}
 
 # 请求示例
 
 > curl -x 127.0.0.1:9900 https://www.baidu.com -H 'Benchmark-Proxy-Times:1' -H 'Benchmark-Proxy-Concurrency:1'
 
-# 自定义Header
+# 自定义请求头
 
 | Header                              | Meaning                 |
 |-------------------------------------|-------------------------|
@@ -46,6 +46,7 @@ example :
 3. `Benchmark-Proxy-Check-Result-Body: @Reg[\w]` 声明被测接口返回的 HTTP 响应数据满足正则表达式 "\w"
 
 # 替换标签
+在请求数据中提供以下标签，程序会将其替换为实际值。
 
 | Tag       | Example                              |
 |-----------|--------------------------------------|

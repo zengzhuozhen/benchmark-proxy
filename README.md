@@ -21,7 +21,7 @@ self-provision certificates is optional while using HTTPS
 
 # Run
 
-> benchmark-proxy --port {port} --ca-crt {file_path} --ca-key {file_path}
+> benchmark-proxy --port {port}
 
 # Request Example
 
@@ -48,6 +48,7 @@ example :
    satisfied with provider regexp rule
 
 # ReplaceTag
+Provide the following label in request data, and the program will replace it with the real value.
 
 | Tag       | Example                                                     |
 |-----------|-------------------------------------------------------------|
