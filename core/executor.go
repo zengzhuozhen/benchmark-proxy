@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/zengzhuozhen/benchmark-proxy/protocol"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptrace"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -35,8 +35,7 @@ type BenchmarkReqConfig struct {
 }
 
 type BenchmarkExecutor interface {
-	Run(isDebug bool)
-	Run2(isDebug bool) // using goroutine pool
+	Run() error // using goroutine pool
 	ClearHopHeaders(header http.Header) http.Header
 	Result() *Statistic
 }
@@ -135,37 +134,8 @@ func (config *BenchmarkReqConfig) ClearHopHeaders(originHeader http.Header) http
 	return originHeader
 }
 
-func (exec *BenchmarkExecTimes) Run(isDebug bool) {
-	wg := sync.WaitGroup{}
-	wg.Add(exec.proxyHeaders.ExecTimes)
-	concurrencyBuffer := make(chan struct{}, exec.proxyHeaders.ExecConcurrency)
-	go exec.statistic.Aggregate(exec.resultChan)
-	urlParser, bodyParser := NewTagCompoundParser(), NewTagCompoundParser()
-	for i := 0; i < exec.proxyHeaders.ExecTimes; i++ {
-		go func() {
-			defer wg.Done()
-			concurrencyBuffer <- struct{}{}
-			newReq := exec.originReq.Clone(exec.originReq.Context())
-			newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
-			newReq.Header = exec.ClearHopHeaders(newReq.Header)
-			exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
-			result, err := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
-			exec.resultChan <- result
-			if err != nil && isDebug {
-				fmt.Printf(DebugRequestErrorFormat, err.Error())
-			}
-			if isDebug {
-				fmt.Printf(DebugResponseMessageFormat, result.ResponseMessage)
-			}
-			<-concurrencyBuffer
-		}()
-	}
-	wg.Wait()
-	close(concurrencyBuffer)
-	close(exec.resultChan)
-}
-
-func (exec *BenchmarkExecTimes) Run2(isDebug bool) {
+func (exec *BenchmarkExecTimes) Run() error {
+	var err error
 	urlParser, bodyParser := NewTagCompoundParser(), NewTagCompoundParser()
 	pool.setCap(exec.proxyHeaders.ExecConcurrency)
 	go exec.statistic.Aggregate(exec.resultChan)
@@ -175,61 +145,24 @@ func (exec *BenchmarkExecTimes) Run2(isDebug bool) {
 			newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 			newReq.Header = exec.ClearHopHeaders(newReq.Header)
 			exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
-			result, err := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
+			result, reqErr := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
 			exec.resultChan <- result
-			if err != nil && isDebug {
-				fmt.Printf(DebugRequestErrorFormat, err.Error())
+			if reqErr != nil {
+				err = reqErr
+				log.Debugf(DebugRequestErrorFormat, err.Error())
 			}
-			if isDebug {
-				fmt.Printf(DebugResponseMessageFormat, result.ResponseMessage)
-			}
+			log.Debugf(DebugResponseMessageFormat, result.ResponseMessage)
+
 		})
 		pool.addTask(task)
 	}
 	pool.wait()
 	close(exec.resultChan)
+	return err
 }
 
-func (exec *BenchmarkExecDuration) Run(isDebug bool) {
-	ctx := exec.originReq.Context()
-	childCtx, cancelFunc := context.WithCancel(ctx)
-	concurrencyBuffer := make(chan struct{}, exec.proxyHeaders.ExecConcurrency)
-	wg := &sync.WaitGroup{}
-	go time.AfterFunc(exec.proxyHeaders.ExecDuration, cancelFunc)
-	go exec.statistic.Aggregate(exec.resultChan)
-	urlParser, bodyParser := NewTagCompoundParser(), NewTagCompoundParser()
-	for {
-		select {
-		case <-childCtx.Done():
-			goto OUT
-		default:
-			concurrencyBuffer <- struct{}{}
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				newReq := exec.originReq.Clone(childCtx)
-				newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
-				newReq.Header = exec.ClearHopHeaders(newReq.Header)
-				exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
-				result, err := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
-				exec.resultChan <- result
-				if err != nil && isDebug {
-					fmt.Printf(DebugRequestErrorFormat, err.Error())
-				}
-				if isDebug {
-					fmt.Printf(DebugResponseMessageFormat, result.ResponseMessage)
-				}
-				<-concurrencyBuffer
-			}()
-		}
-	}
-OUT:
-	wg.Wait()
-	close(concurrencyBuffer)
-	close(exec.resultChan)
-}
-
-func (exec *BenchmarkExecDuration) Run2(isDebug bool) {
+func (exec *BenchmarkExecDuration) Run() error {
+	var err error
 	pool.setCap(exec.proxyHeaders.ExecConcurrency)
 	ctx := exec.originReq.Context()
 	childCtx, cancelFunc := context.WithCancel(ctx)
@@ -246,14 +179,13 @@ func (exec *BenchmarkExecDuration) Run2(isDebug bool) {
 				newReq.Body = io.NopCloser(bytes.NewReader(exec.body))
 				newReq.Header = exec.ClearHopHeaders(newReq.Header)
 				exec.ReplaceCustomizeTag(urlParser, bodyParser, newReq)
-				result, err := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
+				result, reqErr := exec.RunOnce(newReq, exec.proxyHeaders.ResponseChecker)
 				exec.resultChan <- result
-				if err != nil && isDebug {
-					fmt.Printf(DebugRequestErrorFormat, err.Error())
+				if reqErr != nil {
+					err = reqErr
+					log.Debugf(DebugRequestErrorFormat, reqErr.Error())
 				}
-				if isDebug {
-					fmt.Printf(DebugResponseMessageFormat, result.ResponseMessage)
-				}
+				log.Debugf(DebugResponseMessageFormat, result.ResponseMessage)
 			})
 			pool.addTask(task)
 		}
@@ -261,6 +193,7 @@ func (exec *BenchmarkExecDuration) Run2(isDebug bool) {
 OUT:
 	pool.wait()
 	close(exec.resultChan)
+	return err
 }
 
 type Executor struct {

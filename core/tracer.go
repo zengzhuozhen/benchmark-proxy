@@ -2,7 +2,7 @@ package core
 
 import (
 	"crypto/tls"
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptrace"
@@ -75,7 +75,7 @@ func (t *HttpTracer) Trace() *httptrace.ClientTrace {
 		},
 		ConnectDone: func(network, addr string, err error) {
 			if err != nil {
-				fmt.Println("http trace error.ConnectDone:", err.Error())
+				log.Debugln("http trace error.ConnectDone:", err.Error())
 			}
 			t.ConnectDone = time.Now()
 		},
@@ -90,7 +90,7 @@ func (t *HttpTracer) Trace() *httptrace.ClientTrace {
 		},
 		TLSHandshakeDone: func(state tls.ConnectionState, err error) {
 			if err != nil {
-				fmt.Println("http trace error.TLSHandshakeDone:", err.Error())
+				log.Debugln("http trace error.TLSHandshakeDone:", err.Error())
 			}
 			t.TLSHandSHakeDone = time.Now()
 		},

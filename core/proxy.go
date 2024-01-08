@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
 	"net/http"
@@ -17,15 +18,13 @@ type BenchmarkProxyService struct {
 	port    int
 	rootCA  *x509.Certificate
 	rootKey *rsa.PrivateKey
-	isDebug bool
 }
 
 func NewBenchProxyService(port int, rootCA *x509.Certificate, rootKey *rsa.PrivateKey) *BenchmarkProxyService {
 	return &BenchmarkProxyService{port: port, rootCA: rootCA, rootKey: rootKey}
 }
 
-func (s *BenchmarkProxyService) Serve(isDebug bool) {
-	s.isDebug = isDebug
+func (s *BenchmarkProxyService) Serve() {
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s); err != nil {
 		panic(err)
 	}
@@ -35,11 +34,15 @@ func (s *BenchmarkProxyService) ServeHTTP(originRespWriter http.ResponseWriter, 
 	s.WrapInTls(originReq, originRespWriter, func(req *http.Request, respWriter http.ResponseWriter) {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println(err)
+				log.Errorln(err)
 			}
 		}()
 		executor := NewExecutor(req)
-		executor.Run2(s.isDebug)
+		if err := executor.Run(); err != nil {
+			respWriter.WriteHeader(http.StatusBadRequest)
+			respWriter.Write([]byte(err.Error()))
+			return
+		}
 		respWriter.WriteHeader(http.StatusOK)
 		respWriter.Write(executor.Result().Print())
 	})

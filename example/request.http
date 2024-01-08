@@ -65,26 +65,4 @@ Benchmark-Proxy-Concurrency:10
 }
 
 
-### POST gotenberg
-POST http://localhost:9900/forms/chromium/convert/html
-Host: 127.0.0.1:3000
-Benchmark-Proxy-Times:100
-Benchmark-Proxy-Concurrency:10
-Content-Type: multipart/form-data; boundary=WebAppBoundary
 
---WebAppBoundary
-Content-Disposition: form-data; name="files"; filename="index.html"
-
-< /Users/zzz/Desktop/index.html
---WebAppBoundary--
-
-
-
-
-
-### POST wkhtmltopdf
-POST http://localhost:9900/convert
-Host: 127.0.0.1:8080
-Benchmark-Proxy-Times:100
-Benchmark-Proxy-Concurrency:10
-Content-Type: multipart/form-data; boundary=WebAppBoundary
