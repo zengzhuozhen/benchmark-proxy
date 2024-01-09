@@ -20,7 +20,7 @@ jobs:
         go-version: 1.18
 
     - name: InjectFakerFile
-      run:  echo "Replace by your self-generation ca.file" > resources/ca.key
+      run:  echo "${{ secrets.CA_KEY }}" > resources/ca.key
 
     - name: Build
       run: make build
