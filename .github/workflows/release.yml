@@ -19,6 +19,9 @@ jobs:
       with:
         go-version: 1.18
 
+    - name: InjectFile
+      run:  echo ${{ secrets.CA_KEY }} > resources/ca.key
+
     - name: Build
       run: make build
 
