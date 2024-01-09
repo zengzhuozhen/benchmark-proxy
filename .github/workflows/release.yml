@@ -20,7 +20,8 @@ jobs:
         go-version: 1.18
 
     - name: InjectFile
-      run:  echo ${{ secrets.CA_KEY }} > resources/ca.key
+
+      run:  touch resources/ca.key && echo ${{ secrets.CA_KEY }} > resources/ca.key
 
     - name: Build
       run: make build
