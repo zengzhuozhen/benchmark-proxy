@@ -45,7 +45,7 @@ func (p *TagCompoundParser) ParseCustomizeTag(content string) string {
 func (p *TagCompoundParser) parseCustomizeTag(reg *regexp.Regexp, content string) string {
 	match := reg.FindStringSubmatch(content)
 	if len(match) == 0 || len(match) > 2 {
-		return ""
+		return content
 	}
 	s := match[1]
 	switch s {

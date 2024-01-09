@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	DebugResponseMessageFormat = "「DEBUG」Response Message : %s \n"
-	DebugRequestErrorFormat    = "「DEBUG」Request Error : %s \n"
+	DebugRequestMessageFormat  = "Request Message : %+v \n"
+	DebugRequestErrorFormat    = "Request Error : %s \n"
+	DebugResponseMessageFormat = "Response Message : %s \n"
 )
 
 type BenchmarkExecutorType int
@@ -151,8 +152,6 @@ func (exec *BenchmarkExecTimes) Run() error {
 				err = reqErr
 				log.Debugf(DebugRequestErrorFormat, err.Error())
 			}
-			log.Debugf(DebugResponseMessageFormat, result.ResponseMessage)
-
 		})
 		pool.addTask(task)
 	}
@@ -185,7 +184,6 @@ func (exec *BenchmarkExecDuration) Run() error {
 					err = reqErr
 					log.Debugf(DebugRequestErrorFormat, reqErr.Error())
 				}
-				log.Debugf(DebugResponseMessageFormat, result.ResponseMessage)
 			})
 			pool.addTask(task)
 		}
@@ -230,8 +228,9 @@ func (exec *Executor) RunOnce(req *http.Request, checker *ResponseChecker) (Http
 	execReq, err := http.NewRequest(req.Method, req.URL.String(), req.Body)
 	execReq.Header = req.Header
 	if err != nil {
-		return HttpTracerResult{}, fmt.Errorf("执行请求失败,错误原因:%s", err.Error())
+		return HttpTracerResult{}, fmt.Errorf("构造请求失败,错误原因:%s", err.Error())
 	}
+	log.Debugf(DebugRequestMessageFormat, execReq)
 	execReq = execReq.WithContext(httptrace.WithClientTrace(execReq.Context(), tracer.Trace()))
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -243,7 +242,9 @@ func (exec *Executor) RunOnce(req *http.Request, checker *ResponseChecker) (Http
 		return HttpTracerResult{}, fmt.Errorf("执行请求失败,错误原因:%s", err.Error())
 	}
 	defer resp.Body.Close()
-	return tracer.Result(execReq, resp, checker), nil
+	result := tracer.Result(execReq, resp, checker)
+	log.Debugf(DebugResponseMessageFormat, result.ResponseMessage)
+	return result, nil
 }
 
 func (exec *Executor) Result() *Statistic {

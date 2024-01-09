@@ -34,7 +34,6 @@ var rootCmd = &cobra.Command{
 		proxy := core.NewBenchProxyService(port, ca, key)
 		go proxy.Serve()
 		log.Infof("proxy started success in 127.0.0.1:%d \n", port)
-
 		gracefulStop()
 	},
 }

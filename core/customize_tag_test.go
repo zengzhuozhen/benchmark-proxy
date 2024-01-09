@@ -14,7 +14,15 @@ func TestParseCustomizeTag(t *testing.T) {
 			name    string
 			args    args
 			notWant string
+			want    string
 		}{
+			{
+				name: "不替换",
+				args: args{
+					content: "不替换",
+				},
+				want: "不替换",
+			},
 			{
 				name: "替换${int}",
 				args: args{
@@ -68,8 +76,11 @@ func TestParseCustomizeTag(t *testing.T) {
 	)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewTagCompoundParser().ParseCustomizeTag(tt.args.content); got == tt.notWant {
-				t.Errorf("ParseCustomizeTag() = %v, notWant %v", got, tt.notWant)
+			got := NewTagCompoundParser().ParseCustomizeTag(tt.args.content)
+			if tt.want != "" && got != tt.want {
+				t.Errorf("ParseCustomizeTag() = %s, want %s,", got, tt.notWant)
+			} else if tt.notWant != "" && got == tt.notWant {
+				t.Errorf("ParseCustomizeTag() = %s, notWant %s,", got, tt.notWant)
 			} else {
 				fmt.Println("got:", got)
 			}
