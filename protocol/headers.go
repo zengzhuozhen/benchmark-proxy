@@ -27,6 +27,7 @@ var BenchmarkProxyHeaders = []string{
 	BenchmarkProxyConcurrency,
 	BenchmarkProxyCheckResultStatus,
 	BenchmarkProxyCheckResultBody,
+	BenchmarkProxyAuth,
 }
 
 const (
@@ -35,6 +36,7 @@ const (
 	BenchmarkProxyConcurrency       = "Benchmark-Proxy-Concurrency"
 	BenchmarkProxyCheckResultStatus = "Benchmark-Proxy-Check-Result-Status"
 	BenchmarkProxyCheckResultBody   = "Benchmark-Proxy-Check-Result-Body"
+	BenchmarkProxyAuth              = "Benchmark-Proxy-Auth"
 )
 
 func CopyHeader(dst, src http.Header) {
