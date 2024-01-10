@@ -42,7 +42,7 @@ func (d *DefaultDelegate) Handle(req *http.Request, resp http.ResponseWriter) {
 		d.Response(resp, http.StatusBadRequest, []byte(err.Error()))
 		return
 	}
-	d.Response(resp, http.StatusOK, executor.Result().Print())
+	d.Response(resp, http.StatusOK, executor.Result().Print(executor.MetaData()))
 }
 
 func (d *DefaultDelegate) Response(resp http.ResponseWriter, code int, msg []byte) {

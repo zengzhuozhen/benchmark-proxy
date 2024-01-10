@@ -39,6 +39,7 @@ type BenchmarkExecutor interface {
 	Run() error // using goroutine pool
 	ClearHopHeaders(header http.Header) http.Header
 	Result() *Statistic
+	MetaData() *BenchmarkProxyHeader
 }
 
 func NewExecutor(req *http.Request) BenchmarkExecutor {
@@ -122,10 +123,18 @@ type BenchmarkExecTimes struct {
 	Executor
 }
 
+func (exec *BenchmarkExecTimes) MetaData() *BenchmarkProxyHeader {
+	return exec.BenchmarkReqConfig.proxyHeaders
+}
+
 type BenchmarkExecDuration struct {
 	ctx context.Context
 	BenchmarkReqConfig
 	Executor
+}
+
+func (exec *BenchmarkExecDuration) MetaData() *BenchmarkProxyHeader {
+	return exec.BenchmarkReqConfig.proxyHeaders
 }
 
 func (config *BenchmarkReqConfig) ClearHopHeaders(originHeader http.Header) http.Header {

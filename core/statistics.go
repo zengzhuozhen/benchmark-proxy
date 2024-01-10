@@ -32,7 +32,7 @@ func (s *Statistic) Aggregate(tracerResultChan <-chan HttpTracerResult) {
 	}
 }
 
-func (s *Statistic) Print() []byte {
+func (s *Statistic) Print(metadata *BenchmarkProxyHeader) []byte {
 	// wait for aggregate result
 	time.Sleep(time.Second)
 	var (
@@ -51,7 +51,15 @@ func (s *Statistic) Print() []byte {
 		totalServerProcessing += duration.ServerProcessing
 		totalContentTransfer += duration.ContentTransfer
 	}
-
+	s.appendLine("MetaData:")
+	if metadata.ExecTimes > 0 {
+		s.appendLine(fmt.Sprintf("Total Request Count...............%d", metadata.ExecTimes))
+	} else {
+		s.appendLine(fmt.Sprintf("Total Request Duration............%d(ms)", metadata.ExecDuration/1000/1000))
+	}
+	s.appendLine(fmt.Sprintf("Concurrency.......................%d", metadata.ExecConcurrency))
+	s.appendLine("")
+	s.appendLine("Result:")
 	s.appendLine(fmt.Sprintf("Total Duration....................avg=%.2f(ms) total=%.2d(ms)", float64(totalDuration)/float64(s.Total), totalDuration))
 	s.appendLine(fmt.Sprintf("----DNS Lookup....................avg=%.2f(ms)", float64(totalDNSLookup)/float64(s.Total)))
 	s.appendLine(fmt.Sprintf("----TCP Connection.......... .....avg=%.2f(ms)", float64(totalTCPConnection)/float64(s.Total)))
