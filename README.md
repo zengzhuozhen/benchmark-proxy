@@ -60,4 +60,4 @@ Provide the following label in request data, and the program will replace it wit
 
 # Architecture
 
-![alt 数据流图](./doc/benchmark-proxy.png)
+![alt 数据流图](./doc/sequence-diagram.png)

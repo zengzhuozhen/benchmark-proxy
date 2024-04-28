@@ -58,4 +58,4 @@ example :
 
 # 架构图
 
-![alt 数据流图](./doc/benchmark-proxy.png)
+![alt 数据流图](./doc/sequence-diagram.png)
