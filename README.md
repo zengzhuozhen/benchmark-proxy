@@ -2,26 +2,31 @@ English | [中文](README_ZH.md)
 
 # Overview
 
-a proxy tool for HTTP/HTTPS benchmark test
+A powerful HTTP/HTTPS proxy tool designed for API benchmark testing and performance analysis.
 
-- HTTP/HTTPS proxy
-- benchmark for api request
-- statistics spend time,success count and error count of requests
-- replace data(query's param or body) by tag in proxy request
-- check request api response data and status for diagnose success or fail
+## Key Features
 
-# Optional
+- Full HTTP/HTTPS proxy support
+- Comprehensive API benchmark testing capabilities
+- Detailed performance metrics tracking (response time, success/error counts)
+- Dynamic request data replacement via template tags
+- Flexible response validation for both status codes and response bodies
 
-self-provision certificates is optional while using HTTPS
+# SSL Certificate Setup (Optional)
+
+For HTTPS support, you can generate self-signed certificates using the following commands:
 
 1. `openssl genrsa -out ca.key 2048`
 2. `openssl req -new -x509 -key ca.key -out ca.crt -days 1095`
-3. `move ca.* resources/`
-4. Update the system's trusted certificates
+3. `mv ca.* resources/`
+4. Add the generated certificate to your system's trusted certificates
 
-# Run
+# Usage
 
-> benchmark-proxy --port {port}
+Start the proxy server:
+```bash
+benchmark-proxy --port {port}
+```
 
 # Request Example
 
