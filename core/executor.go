@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"github.com/zengzhuozhen/benchmark-proxy/protocol"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptrace"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/zengzhuozhen/benchmark-proxy/protocol"
 )
 
 const (
@@ -45,7 +45,7 @@ type BenchmarkExecutor interface {
 func NewExecutor(req *http.Request) BenchmarkExecutor {
 	header := make(http.Header)
 	protocol.CopyHeader(header, req.Header)
-	body, _ := ioutil.ReadAll(req.Body)
+	body, _ := io.ReadAll(req.Body)
 	for _, i := range protocol.BenchmarkProxyHeaders {
 		req.Header.Del(i)
 	}
@@ -78,7 +78,7 @@ func NewExecutor(req *http.Request) BenchmarkExecutor {
 }
 
 func NewProxyHeader(header http.Header) *BenchmarkProxyHeader {
-	var execTime, execDuration, execConcurrency, checkResultStatus int
+	var execTime, execDuration, execConcurrency int
 	execTimesStr := protocol.GetProxyHeaderParam(header, protocol.BenchmarkProxyExecTimes)
 	if execTimesStr != "" {
 		execTime, _ = strconv.Atoi(execTimesStr)
@@ -94,20 +94,9 @@ func NewProxyHeader(header http.Header) *BenchmarkProxyHeader {
 		execConcurrency, _ = strconv.Atoi(execConcurrencyStr)
 	}
 
-	var responseCheckerOptions []ResponseCheckOption
-
 	checkResultStatusStr := protocol.GetProxyHeaderParam(header, protocol.BenchmarkProxyCheckResultStatus)
-	if checkResultStatusStr != "" {
-		checkResultStatus, _ = strconv.Atoi(checkResultStatusStr)
-		responseCheckerOptions = append(responseCheckerOptions, ResponseCheckerStatusRule(checkResultStatus))
-	}
-
 	checkResultBody := protocol.GetProxyHeaderParam(header, protocol.BenchmarkProxyCheckResultBody)
-	if checkResultBody != "" {
-		responseCheckerOptions = append(responseCheckerOptions, ResponseCheckerBodyRule(checkResultBody))
-	}
-
-	responseChecker := NewResponseChecker(responseCheckerOptions...)
+	responseChecker := SmartResponseChecker(checkResultStatusStr, checkResultBody)
 
 	return &BenchmarkProxyHeader{
 		ExecTimes:       execTime,
@@ -146,7 +135,7 @@ func (config *BenchmarkReqConfig) ClearHopHeaders(originHeader http.Header) http
 
 func (exec *BenchmarkExecTimes) Run() error {
 	var err error
-	urlParser, bodyParser := NewTagCompoundParser(), NewTagCompoundParser()
+	urlParser, bodyParser := NewTagCompoundParser(DefaultTagRegistry()), NewTagCompoundParser(DefaultTagRegistry())
 	pool.setCap(exec.proxyHeaders.ExecConcurrency)
 	go exec.statistic.Aggregate(exec.resultChan)
 	for i := 0; i < exec.proxyHeaders.ExecTimes; i++ {
@@ -176,7 +165,7 @@ func (exec *BenchmarkExecDuration) Run() error {
 	childCtx, cancelFunc := context.WithCancel(ctx)
 	go time.AfterFunc(exec.proxyHeaders.ExecDuration, cancelFunc)
 	go exec.statistic.Aggregate(exec.resultChan)
-	urlParser, bodyParser := NewTagCompoundParser(), NewTagCompoundParser()
+	urlParser, bodyParser := NewTagCompoundParser(DefaultTagRegistry()), NewTagCompoundParser(DefaultTagRegistry())
 	for {
 		select {
 		case <-childCtx.Done():
@@ -209,27 +198,14 @@ type Executor struct {
 }
 
 func (exec *Executor) ReplaceCustomizeTag(urlParser, bodyParser *TagCompoundParser, req *http.Request) {
-	// url
-	queryPairs := req.URL.Query()
-	for k, v := range queryPairs {
-		// 1. get need replace tag
-		var replace []string
-		for _, i := range v {
-			replace = append(replace, urlParser.ParseCustomizeTag(i)) // 2.replace every tag
-		}
-		queryPairs.Del(k)
-		for _, i := range replace { // 3.reset queryParis
-			queryPairs.Add(k, i)
-		}
+	handlers := []TagReplaceHandler{
+		&URLQueryTagHandler{parser: urlParser},
+		&BodyTagHandler{parser: bodyParser},
+		// 可扩展更多 handler
 	}
-	req.URL.RawQuery = queryPairs.Encode()
-	// body
-	bodyContent, _ := ioutil.ReadAll(req.Body)
-	defer func() {
-		req.Body = io.NopCloser(bytes.NewReader(bodyContent))
-	}()
-	parseContent := bodyParser.ParseCustomizeTag(string(bodyContent))
-	bodyContent = []byte(parseContent)
+	for _, h := range handlers {
+		h.Replace(req)
+	}
 }
 
 func (exec *Executor) RunOnce(req *http.Request, checker *ResponseChecker) (HttpTracerResult, error) {

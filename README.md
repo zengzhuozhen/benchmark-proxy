@@ -46,22 +46,47 @@ benchmark-proxy --port {port}
 
 example :
 
-1. `Benchmark-Proxy-Check-Result-Status: 200` Indicate http request is success that response status is 200
-2. `Benchmark-Proxy-Check-Result-Body: hello world` Indicate http request is success return that http response body is '
-   hello world'
-3. `Benchmark-Proxy-Check-Result-Body: @Reg[\w]` Indicate http request is success return that http response body is
-   satisfied with provider regexp rule
+1. `Benchmark-Proxy-Check-Result-Status: 200` — Success if response status is 200
+2. `Benchmark-Proxy-Check-Result-Status: 200,201` — Success if response status is 200 or 201
+3. `Benchmark-Proxy-Check-Result-Status: 200-299` — Success if response status is in [200,299]
+4. `Benchmark-Proxy-Check-Result-Body: hello world` — Success if response body equals 'hello world'
+5. `Benchmark-Proxy-Check-Result-Body: @Contains[success]` — Success if response body contains 'success'
+6. `Benchmark-Proxy-Check-Result-Body: @Reg[\w+]` — Success if response body matches regexp `\w+`
 
-# ReplaceTag
+**Supported status check expressions:**
+- `200` (equal)
+- `200,201` (multi-value)
+- `200-299` (range)
+
+**Supported body check expressions:**
+- `hello world` (equal)
+- `@Contains[success]` (contains)
+- `@Reg[pattern]` (regexp)
+
+# CustomizeTag
 Provide the following label in request data, and the program will replace it with the real value.
 
-| Tag       | Example                                                     |
-|-----------|-------------------------------------------------------------|
-| ${uuid}   | d035581b-53a3-48e5-9461-ba24709f06c9                        |
-| ${int}    | 77                                                          |
-| ${float}  | 0.94                                                        |
-| ${string} | 762edb6805                                                  |
-| ${incr}   | 1(default:1,it will auto increment in every proxy request ) |
+**Supported tags and examples:**
+
+| Tag         | Example / Usage                        | Description                                      |
+|-------------|----------------------------------------|--------------------------------------------------|
+| ${uuid}     | d035581b-53a3-48e5-9461-ba24709f06c9   | Random UUID                                      |
+| ${int}      | 77                                     | Random integer                                   |
+| ${int:10,20}| 15                                     | Random integer in [10,20]                        |
+| ${float}    | 0.94                                   | Random float                                     |
+| ${float:1.5,2.5} | 2.01                              | Random float in [1.5,2.5]                        |
+| ${string}   | 762edb6805                             | Random string (default 10 chars)                 |
+| ${string:8} | 1a2b3c4d                               | Random string of length 8                        |
+| ${bool}     | true                                   | Random boolean                                   |
+| ${date:2006-01-02} | 2024-05-01                      | Current date with format                         |
+| ${timestamp}| 1714550400                             | Current unix timestamp                           |
+| ${incr}     | 1                                      | Auto-increment integer (default start 1)         |
+| ${incr:100,2}| 100,102,104...                        | Auto-increment from 100, step 2                  |
+| ${range:1,5}| 1,2,3,4,5                              | Range auto-increment in [1,5]                    |
+| ${list:[a,b,c]} | b                                  | Randomly pick one from list                      |
+| ${const:hello}| hello                                | Constant value                                   |
+
+You can use these tags anywhere in your request body, headers, or URL parameters. The program will replace them with generated values for each request.
 
 # Architecture
 

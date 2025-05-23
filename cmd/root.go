@@ -73,8 +73,6 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&port, "port", 9900, "proxy server bind port")
 	rootCmd.PersistentFlags().BoolVar(&isDebug, "debug", false, "debug mode")
 
-	// subCmd
-	rootCmd.AddCommand(tagsCmd, headersCmd)
 }
 
 func Execute() {

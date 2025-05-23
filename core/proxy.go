@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
 	"net/http"
@@ -71,7 +72,9 @@ func (s *BenchmarkProxyService) tunnelProxy(req *http.Request, resp http.Respons
 	tlsClientConn := tls.Server(clientConn, tlsConfig)
 	defer tlsClientConn.Close()
 	if err := tlsClientConn.Handshake(); err != nil {
-		http.Error(resp, fmt.Sprintf("HTTPS解密, 握手失败: %s", err), http.StatusServiceUnavailable)
+		//http.Error(resp, fmt.Sprintf("HTTPS解密, 握手失败: %s", err), http.StatusServiceUnavailable)
+		log.Printf("HTTPS解密, 握手失败: %s", err)
+		clientConn.Write([]byte("HTTP/1.1 503 Service Unavailable\r\n\r\n"))
 		return
 	}
 
@@ -79,7 +82,9 @@ func (s *BenchmarkProxyService) tunnelProxy(req *http.Request, resp http.Respons
 	tlsReq, err := http.ReadRequest(buf)
 	if err != nil {
 		if err != io.EOF {
-			http.Error(resp, fmt.Sprintf("HTTPS解密, 读取客户端请求失败:%s", err), http.StatusServiceUnavailable)
+			//http.Error(resp, fmt.Sprintf("HTTPS解密, 读取客户端请求失败:%s", err), http.StatusServiceUnavailable)
+			log.Printf("HTTPS解密, 读取客户端请求失败: %s", err)
+			clientConn.Write([]byte("HTTP/1.1 503 Service Unavailable\r\n\r\n"))
 		}
 		return
 	}
@@ -93,7 +98,9 @@ func (s *BenchmarkProxyService) tunnelProxy(req *http.Request, resp http.Respons
 
 	targetConn, err := net.DialTimeout("tcp", tlsReq.URL.Host, 5*time.Second)
 	if err != nil {
-		http.Error(resp, fmt.Sprintf("隧道转发连接目标服务器失败, :%s", err), http.StatusServiceUnavailable)
+		//http.Error(resp, fmt.Sprintf("隧道转发连接目标服务器失败, :%s", err), http.StatusServiceUnavailable)
+		log.Printf("隧道转发连接目标服务器失败: %s", err)
+		clientConn.Write([]byte("HTTP/1.1 503 Service Unavailable\r\n\r\n"))
 		return
 	}
 	defer targetConn.Close()
